@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="dev.onepub.handyman">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="dev.onepub.pigation">
 <uses-permission android:name="android.permission.CALL_PHONE" />
 <!-- <uses-permission android:name="android.permission.SEND_SMS" /> -->
 <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -50,7 +50,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="ivanhoehandyman.com.au" android:pathPrefix="/xero/auth_complete" />
+                <data android:scheme="https" android:host="pigation.onepub.dev" android:pathPrefix="/xero/auth_complete" />
             </intent-filter>
 
 			<!--

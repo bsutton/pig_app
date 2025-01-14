@@ -1,7 +1,7 @@
 // lighting_view_screen.dart
 import 'package:flutter/material.dart';
 
-import '../../api/lighting.dart';
+import '../../api/lighting_api.dart';
 import '../../api/lighting_info.dart';
 import '../../util/exceptions.dart';
 import '../widgets/async_state.dart';

@@ -29,7 +29,7 @@ class _AboutScreenState extends State<AboutScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("Hold My Beer (HMB) - I'm a handyman"),
+              const Text('PiGation'),
               Text('Version: $packageVersion'),
               const Text('Author: S. Brett Sutton'),
               const SizedBox(height: 20),

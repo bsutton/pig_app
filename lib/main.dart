@@ -111,7 +111,6 @@ ThemeData get theme => ThemeData(
       visualDensity: VisualDensity.adaptivePlatformDensity,
     );
 
-
 bool initialised = false;
 Future<void> _initialise(BuildContext context) async {
   if (!initialised) {

@@ -27,5 +27,5 @@ void main() {
       .run;
 
   print(orange(
-      'You need to check that the ihserver/www_root/.well-known/assetlinks.json file has both of the SHA256 signatures'));
+      'You need to check that the pig_server/www_root/.well-known/assetlinks.json file has both of the SHA256 signatures'));
 }

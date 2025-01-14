@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:future_builder_ex/future_builder_ex.dart';
 
-import '../../api/lighting.dart';
+import '../../api/lighting_api.dart';
 
 class HMBStatusBar extends StatelessWidget {
   const HMBStatusBar({

@@ -26,9 +26,9 @@ GoRouter get router => GoRouter(
             if (!systemConfigured) {
               return '/public/first_run';
             } else if (!userIsLoggedIn) {
-              return '/lighting';
+              return '/overview';
             } else {
-              return '/lighting';
+              return '/overview';
             }
           },
         ),
@@ -88,7 +88,7 @@ GoRouter get router => GoRouter(
               initialScreen: GardenBedConfigurationScreen()),
         ),
         GoRoute(
-          path: '/endpoint_config',
+          path: '/config/endpoints',
           builder: (_, __) => const HomeWithDrawer(
               initialScreen: EndPointConfigurationScreen()),
         ),

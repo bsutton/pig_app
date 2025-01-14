@@ -6,20 +6,20 @@
         {
             "previewLimit": 50,
             "driver": "SQLite",
-            "name": "hmb",
-            "database": "${workspaceFolder:hmb}/.dart_tool/sqflite_common_ffi/databases/handyman.db"
+            "name": "pigation",
+            "database": "${workspaceFolder:pigation}/.dart_tool/sqflite_common_ffi/databases/pigation.db"
         },
         {
             "previewLimit": 50,
             "driver": "SQLite",
             "name": "temp_db",
-            "database": "C:\\Users\\bsutt\\AppData\\Local\\Temp\\.dclitmp\\af8c110c-9693-44cb-a305-fa025a3adc59\\handyman_test_temp.db"
+            "database": "C:\\Users\\bsutt\\AppData\\Local\\Temp\\.dclitmp\\af8c110c-9693-44cb-a305-fa025a3adc59\\pigation_test_temp.db"
         },
         {
             "previewLimit": 50,
             "driver": "SQLite",
             "name": "test_db",
-            "database": "${workspaceFolder:hmb}/test/fixture/db/handyman_test.db"
+            "database": "${workspaceFolder:pigation}/test/fixture/db/pigation_test.db"
         }
     ],
     "sqltools.useNodeRuntime": true

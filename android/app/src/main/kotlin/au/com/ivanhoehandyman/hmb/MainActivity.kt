@@ -1,4 +1,4 @@
-package dev.onepub.handyman
+package dev.onepub.pigation
 
 import io.flutter.embedding.android.FlutterFragmentActivity;
 

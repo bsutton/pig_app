@@ -60,3 +60,4 @@ firebase.json
 android/app/google-services.json
 windows/sqlite3.dll
 web/sqlite3.wasm
+android/app/src/debug/google-services.json

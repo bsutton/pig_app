@@ -1,16 +1,18 @@
 // garden_bed_edit_screen.dart
 import 'package:flutter/material.dart';
 import 'package:future_builder_ex/future_builder_ex.dart';
+import 'package:pig_common/pig_common.dart';
 
-import '../../api/gardenbed.dart';
+import '../../api/gardenbed_api.dart';
 import '../../util/exceptions.dart';
+import '../../util/list_ex.dart';
 import '../widgets/async_state.dart';
 import '../widgets/hmb_toast.dart';
 
 class GardenBedEditScreen extends StatefulWidget {
-  // Null if new, else the ID for editing
-
+  /// If `gardenBedId` is null, we create a new bed; otherwise we edit an existing bed.
   const GardenBedEditScreen({super.key, this.gardenBedId});
+
   final int? gardenBedId;
 
   @override
@@ -24,19 +26,15 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
 
   bool get isNew => widget.gardenBedId == null;
 
-  // The data model we edit
-  GardenBedData bedData = GardenBedData(name: '');
-
-  List<EndPointInfo> valves = [];
-  List<EndPointInfo> masterValves = [];
-
-  final bool _allowDelete = false;
+  /// The data model for the currently edited bed.
+  late final GardenBedListData bedData;
+  late final GardenBedData? bed;
 
   @override
   Future<void> asyncInitState() async {
-    if (widget.gardenBedId != null) {
-      await api.fetchBed(widget.gardenBedId!);
-    }
+    bedData = await api.fetchBedEditData(widget.gardenBedId);
+    bed = bedData.beds.firstOrNull;
+    setState(() {});
   }
 
   Future<void> _save() async {
@@ -44,23 +42,31 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
       return;
     }
     _formKey.currentState!.save();
+
     try {
       await api.save(
-          name: bedData.name,
-          valveId: bedData.valveId!,
-          masterValveId: bedData.masterValveId);
+        id: bed!.id,
+        name: bed!.name!,
+        description: bed!.description ?? '',
+        valveId: bed!.valveId!,
+        masterValveId: bed!.masterValveId,
+      );
+
+      if (mounted) {
+        Navigator.of(context).pop(true); // Indicate success
+      }
     } on NetworkException catch (e) {
       HMBToast.error('Save failed: $e');
     }
   }
 
   Future<void> _delete() async {
-    if (bedData.id == null) {
+    if (bed!.id == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cannot delete a new GardenBed')));
+        const SnackBar(content: Text('Cannot delete a new GardenBed')),
+      );
       return;
     }
-    // Confirm with user
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -83,7 +89,7 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
     }
 
     try {
-      await api.deleteBed(bedData.id!);
+      await api.deleteBed(bed!.id!);
       if (mounted) {
         Navigator.of(context).pop(true);
       }
@@ -93,76 +99,98 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text(isNew ? 'Add Garden Bed' : 'Edit Garden Bed'),
-          actions: [
-            if (_allowDelete)
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: _delete,
-              )
-          ],
-        ),
-        body: FutureBuilderEx(
-            future: initialised,
-            builder: (context, _) => Form(
-                  key: _formKey,
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
+  Widget build(BuildContext context) => FutureBuilderEx(
+      future: initialised, // Provided by AsyncState
+      builder: (context, _) => Scaffold(
+            appBar: AppBar(
+              title: Text(isNew ? 'Add Garden Bed' : 'Edit Garden Bed'),
+              actions: [
+                if (bed!.allowDelete)
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: _delete,
+                  ),
+              ],
+            ),
+            body: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  // Garden Bed Name
+                  TextFormField(
+                    initialValue: bed!.name,
+                    decoration:
+                        const InputDecoration(labelText: 'Garden Bed Name'),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter a name';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      bed!.name = value!.trim();
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Garden Bed Description
+                  TextFormField(
+                    initialValue: bed!.description,
+                    decoration: const InputDecoration(
+                        labelText: 'Garden Bed Description'),
+                    maxLines: 2,
+                    onSaved: (value) {
+                      bed!.description = value?.trim();
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Valve
+                  _buildValveDropdown(),
+
+                  const SizedBox(height: 16),
+
+                  // Master Valve
+                  _buildMasterValveDropdown(),
+
+                  const SizedBox(height: 32),
+                  Row(
                     children: [
-                      TextFormField(
-                        initialValue: bedData.name,
-                        decoration:
-                            const InputDecoration(labelText: 'Garden Bed Name'),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter a name';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
-                          bedData.name = value!.trim();
-                        },
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancel'),
                       ),
-                      const SizedBox(height: 20),
-                      _buildValveDropdown(),
-                      const SizedBox(height: 20),
-                      _buildMasterValveDropdown(),
-                      const SizedBox(height: 40),
-                      Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text('Cancel'),
-                          ),
-                          const Spacer(),
-                          ElevatedButton(
-                            onPressed: _save,
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue),
-                            child: const Text('Save'),
-                          ),
-                        ],
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: _save,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                        ),
+                        child: const Text('Save'),
                       ),
                     ],
                   ),
-                )),
-      );
+                ],
+              ),
+            ),
+          ));
 
-  Widget _buildValveDropdown() => DropdownButtonFormField<int>(
+  Widget _buildValveDropdown() => DropdownButtonFormField<EndPointInfo>(
         decoration: const InputDecoration(labelText: 'Valve'),
-        value: bedData.valveId,
+        value: bedData.valves
+            .firstWhereOrNull((value) => value.id == bed!.valveId),
         items: [
-          for (final val in valves)
-            DropdownMenuItem<int>(
-              value: val.id,
-              child: Text('${val.name} (pin ${val.pinNo})'),
+          for (final val in bedData.valves)
+            DropdownMenuItem<EndPointInfo>(
+              value: val,
+              child: Text(
+                  '${val.name} (GPIO Pin ${val.pinAssignment.gpioPin} (Header: ${val.pinAssignment.headerPin}))'),
             )
         ],
         onChanged: (value) {
           setState(() {
-            bedData.valveId = value;
+            bed!.valveId = value?.id;
           });
         },
         validator: (value) => (value == null) ? 'Please select a valve' : null,
@@ -170,20 +198,21 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
 
   Widget _buildMasterValveDropdown() => DropdownButtonFormField<int>(
         decoration: const InputDecoration(labelText: 'Master Valve (optional)'),
-        value: bedData.masterValveId,
+        value: bed!.masterValveId,
         items: [
           const DropdownMenuItem<int>(
             child: Text('None'),
           ),
-          for (final val in masterValves)
+          for (final val in bedData.masterValves)
             DropdownMenuItem<int>(
               value: val.id,
-              child: Text('${val.name} (pin ${val.pinNo})'),
+              child: Text(
+                  '${val.name} (GPIO Pin ${val.pinAssignment.gpioPin} (Header: ${val.pinAssignment.headerPin}))'),
             )
         ],
         onChanged: (value) {
           setState(() {
-            bedData.masterValveId = value;
+            bed!.masterValveId = value;
           });
         },
       );

@@ -22,7 +22,8 @@
             "program": "lib/main.dart",
             "args": [
                 "-d",
-                "linux"
+                "linux",
+                "--dart-define=SERVER_URL=http://localhost:1080"
             ],
         },
         {
@@ -64,6 +65,5 @@
                 "-a"
             ]
         }
-
     ]
 }
