@@ -32,16 +32,15 @@ Create a signed release appbundle suitable to upload to Google Play store.''')
   }
   var build = results['build'] as bool;
   var install = results['install'] as bool;
-  var assets = results['assets'] as bool;
   final release = results['release'] as bool;
 
-  if (!build && !install && !assets && !release) {
+  if (!build && !install && !release) {
     /// no switches passed so do it all.
-    assets = build = install = true;
+    build = install = true;
   }
   if (release) {
     install = false;
-    build = assets = true;
+    build = true;
   }
 
   var needPubGet = true;
@@ -97,9 +96,6 @@ void buildApk() {
 }
 
 void buildAppBundle(Version newVersion) {
-// TODO(bsutton): the rich text editor includes random icons
-// so tree shaking of icons isn't possible. Can we fix this?
-
   'flutter build appbundle --release --no-tree-shake-icons'.start();
 
   final targetPath =

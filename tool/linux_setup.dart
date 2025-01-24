@@ -5,7 +5,8 @@ import 'package:path/path.dart';
 
 import 'keystore.dart';
 
-/// setup script to help get a linux (ubuntu) dev environment working.
+/// Installes the packages required and then
+/// genrates the keys used when creating apk bundles.
 void main() {
   'apt install --assume-yes '
 
@@ -32,7 +33,7 @@ void main() {
 void _createReleaseKeyStore() {
   if (!exists(keyStorePath)) {
     print(red('''
-creating signing key - store this VERY SAFELEY - under "HMB keystore"'''));
+creating signing key - store this VERY SAFELEY - under "Pigation keystore"'''));
     var bad = false;
     String password;
     String confirmed;
@@ -74,7 +75,7 @@ storeFile=$keyStorePath
 void _createDebugKeyStore() {
   if (!exists(keyStorePathForDebug)) {
     print(red('''
-creating debug signing key - store this VERY SAFELEY - under "HMB keystore"'''));
+creating debug signing key - store this VERY SAFELEY - under "Pigation keystore"'''));
     var bad = false;
     String password;
     String confirmed;
@@ -101,11 +102,11 @@ creating debug signing key - store this VERY SAFELEY - under "HMB keystore"'''))
     print(orange('''
 Your keystore has been created $keyStorePathForDebug. Backup it up to lastpass'''));
 
-    join(projectRoot, 'android', 'key.properties').write('''
-storePassword=$password
-keyPassword=$password
-keyAlias=$keyStoreAliasForDebug
-storeFile=$keyStorePathForDebug
+    join(projectRoot, 'android', 'key.properties').append('''
+storePassword.debug=$password
+keyPassword.debug=$password
+keyAlias.debug=$keyStoreAliasForDebug
+storeFile.debug=$keyStorePathForDebug
     ''');
   } else {
     print(orange('Using existing debug keystore $keyStorePathForDebug'));

@@ -6,11 +6,11 @@ final projectRoot = DartProject.self.pathToProjectRoot;
 // final keyStorePath = join(projectRoot, 'hmb-key.keystore');
 // const keyStoreAlias = 'hmbkey';
 
-final keyStorePath = join(projectRoot, 'hmb-production.keystore');
-const keyStoreAlias = 'hmb-production';
+final keyStorePath = join(projectRoot, 'pigation-production.keystore');
+const keyStoreAlias = 'pigation-production';
 
 // final keyStorePathForDebug = join(projectRoot, 'hmb-key-debug.keystore');
 // const keyStoreAliasForDebug = 'hmb-debug-key';
 
-final keyStorePathForDebug = join(projectRoot, 'hmb-debug.keystore');
-const keyStoreAliasForDebug = 'hmb-debug';
+final keyStorePathForDebug = join(projectRoot, 'pigation-debug.keystore');
+const keyStoreAliasForDebug = 'pigation-debug';
