@@ -72,12 +72,36 @@ Future<void> main(List<String> args) async {
 
 ThemeData get theme => ThemeData(
       primaryColor: Colors.deepPurple,
-      brightness:
-          Brightness.dark, // This sets the overall theme brightness to dark
+      brightness: Brightness.dark, // Overall theme brightness
       scaffoldBackgroundColor: HMBColors.defaultBackground,
       buttonTheme: const ButtonThemeData(
-        buttonColor: Colors.deepPurple,
-        textTheme: ButtonTextTheme.primary,
+        buttonColor: Colors.deepPurple, // Button background color
+        textTheme: ButtonTextTheme.primary, // Ensures contrast for text
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.deepPurple, // Background for elevated buttons
+          foregroundColor: Colors.white, // Text color for elevated buttons
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor:
+              Colors.deepPurpleAccent, // Text color for text buttons
+          textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor:
+              Colors.deepPurpleAccent, // Text color for outlined buttons
+          side:
+              const BorderSide(color: Colors.deepPurpleAccent), // Border color
+        ),
       ),
       snackBarTheme: SnackBarThemeData(
         actionTextColor: HMBColors.accent,
@@ -88,8 +112,6 @@ ThemeData get theme => ThemeData(
         confirmButtonStyle: TextButton.styleFrom(foregroundColor: Colors.white),
         cancelButtonStyle: TextButton.styleFrom(foregroundColor: Colors.white),
       ),
-      textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(foregroundColor: Colors.white)),
       dialogTheme: const DialogTheme(
         titleTextStyle: TextStyle(
             color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
@@ -97,11 +119,12 @@ ThemeData get theme => ThemeData(
       ),
       colorScheme: ColorScheme.fromSwatch(
         primarySwatch: Colors.deepPurple,
-        brightness:
-            Brightness.dark, // Add this line to match ThemeData brightness
-      )
-          .copyWith(secondary: HMBColors.accent)
-          .copyWith(surface: HMBColors.defaultBackground),
+        brightness: Brightness.dark,
+      ).copyWith(
+        secondary: HMBColors.accent,
+        surface: HMBColors.defaultBackground,
+        onPrimary: Colors.white, // Ensures text contrast on primary
+      ),
       visualDensity: VisualDensity.adaptivePlatformDensity,
     );
 
