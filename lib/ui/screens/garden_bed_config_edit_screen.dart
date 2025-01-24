@@ -1,12 +1,11 @@
 // garden_bed_edit_screen.dart
+import 'package:deferred_state/deferred_state.dart';
 import 'package:flutter/material.dart';
-import 'package:future_builder_ex/future_builder_ex.dart';
 import 'package:pig_common/pig_common.dart';
 
 import '../../api/gardenbed_api.dart';
 import '../../util/exceptions.dart';
 import '../../util/list_ex.dart';
-import '../widgets/async_state.dart';
 import '../widgets/hmb_toast.dart';
 
 class GardenBedEditScreen extends StatefulWidget {
@@ -19,7 +18,7 @@ class GardenBedEditScreen extends StatefulWidget {
   _GardenBedEditScreenState createState() => _GardenBedEditScreenState();
 }
 
-class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
+class _GardenBedEditScreenState extends DeferredState<GardenBedEditScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final api = GardenBedApi();
@@ -28,13 +27,12 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
 
   /// The data model for the currently edited bed.
   late final GardenBedListData bedData;
-  late final GardenBedData? bed;
+  late final GardenBedData bed;
 
   @override
   Future<void> asyncInitState() async {
     bedData = await api.fetchBedEditData(widget.gardenBedId);
-    bed = bedData.beds.firstOrNull;
-    setState(() {});
+    bed = bedData.beds.firstOrNull ?? GardenBedData();
   }
 
   Future<void> _save() async {
@@ -44,13 +42,7 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
     _formKey.currentState!.save();
 
     try {
-      await api.save(
-        id: bed!.id,
-        name: bed!.name!,
-        description: bed!.description ?? '',
-        valveId: bed!.valveId!,
-        masterValveId: bed!.masterValveId,
-      );
+      await api.save(bed);
 
       if (mounted) {
         Navigator.of(context).pop(true); // Indicate success
@@ -61,7 +53,7 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
   }
 
   Future<void> _delete() async {
-    if (bed!.id == null) {
+    if (bed.id == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cannot delete a new GardenBed')),
       );
@@ -89,7 +81,7 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
     }
 
     try {
-      await api.deleteBed(bed!.id!);
+      await api.deleteBed(bed.id!);
       if (mounted) {
         Navigator.of(context).pop(true);
       }
@@ -99,13 +91,12 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => FutureBuilderEx(
-      future: initialised, // Provided by AsyncState
-      builder: (context, _) => Scaffold(
+  Widget build(BuildContext context) => DeferredBuilder(this,
+      builder: (context) => Scaffold(
             appBar: AppBar(
               title: Text(isNew ? 'Add Garden Bed' : 'Edit Garden Bed'),
               actions: [
-                if (bed!.allowDelete)
+                if (bed.allowDelete)
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: _delete,
@@ -119,7 +110,7 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
                 children: [
                   // Garden Bed Name
                   TextFormField(
-                    initialValue: bed!.name,
+                    initialValue: bed.name,
                     decoration:
                         const InputDecoration(labelText: 'Garden Bed Name'),
                     validator: (value) {
@@ -129,19 +120,19 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
                       return null;
                     },
                     onSaved: (value) {
-                      bed!.name = value!.trim();
+                      bed.name = value!.trim();
                     },
                   ),
                   const SizedBox(height: 16),
 
                   // Garden Bed Description
                   TextFormField(
-                    initialValue: bed!.description,
+                    initialValue: bed.description,
                     decoration: const InputDecoration(
                         labelText: 'Garden Bed Description'),
                     maxLines: 2,
                     onSaved: (value) {
-                      bed!.description = value?.trim();
+                      bed.description = value?.trim();
                     },
                   ),
                   const SizedBox(height: 16),
@@ -178,8 +169,8 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
 
   Widget _buildValveDropdown() => DropdownButtonFormField<EndPointInfo>(
         decoration: const InputDecoration(labelText: 'Valve'),
-        value: bedData.valves
-            .firstWhereOrNull((value) => value.id == bed!.valveId),
+        value:
+            bedData.valves.firstWhereOrNull((value) => value.id == bed.valveId),
         items: [
           for (final val in bedData.valves)
             DropdownMenuItem<EndPointInfo>(
@@ -190,7 +181,7 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
         ],
         onChanged: (value) {
           setState(() {
-            bed!.valveId = value?.id;
+            bed.valveId = value?.id;
           });
         },
         validator: (value) => (value == null) ? 'Please select a valve' : null,
@@ -198,7 +189,7 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
 
   Widget _buildMasterValveDropdown() => DropdownButtonFormField<int>(
         decoration: const InputDecoration(labelText: 'Master Valve (optional)'),
-        value: bed!.masterValveId,
+        value: bed.masterValveId,
         items: [
           const DropdownMenuItem<int>(
             child: Text('None'),
@@ -212,7 +203,7 @@ class _GardenBedEditScreenState extends AsyncState<GardenBedEditScreen> {
         ],
         onChanged: (value) {
           setState(() {
-            bed!.masterValveId = value;
+            bed.masterValveId = value;
           });
         },
       );

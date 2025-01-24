@@ -1,10 +1,10 @@
 // lighting_view_screen.dart
+import 'package:deferred_state/deferred_state.dart';
 import 'package:flutter/material.dart';
 
 import '../../api/lighting_api.dart';
 import '../../api/lighting_info.dart';
 import '../../util/exceptions.dart';
-import '../widgets/async_state.dart';
 import '../widgets/hmb_toast.dart';
 
 class LightingViewScreen extends StatefulWidget {
@@ -14,13 +14,13 @@ class LightingViewScreen extends StatefulWidget {
   _LightingViewScreenState createState() => _LightingViewScreenState();
 }
 
-class _LightingViewScreenState extends AsyncState<LightingViewScreen> {
-  late Future<List<LightingInfo>> _lightingFuture;
+class _LightingViewScreenState extends DeferredState<LightingViewScreen> {
+  late List<LightingInfo> lights;
   final api = LightingApi();
 
   @override
   Future<void> asyncInitState() async {
-    _lightingFuture = api.fetchLightingList();
+    lights = await api.fetchLightingList();
   }
 
   Future<void> _toggleLight(LightingInfo light, bool turnOn) async {
@@ -43,9 +43,8 @@ class _LightingViewScreenState extends AsyncState<LightingViewScreen> {
           turnOn: turnOn);
       // We can optionally parse the response for updated info
       // Then re-fetch the entire lighting list
-      setState(() {
-        _lightingFuture = api.fetchLightingList();
-      });
+      lights = await api.fetchLightingList();
+      setState(() {});
     } on NetworkException catch (e, _) {
       HMBToast.error(e.message);
     }
@@ -91,16 +90,9 @@ class _LightingViewScreenState extends AsyncState<LightingViewScreen> {
         appBar: AppBar(
           title: const Text('Lighting'),
         ),
-        body: FutureBuilder<List<LightingInfo>>(
-          future: _lightingFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            }
-            final lights = snapshot.data ?? [];
+        body: DeferredBuilder(
+          this,
+          builder: (context) {
             if (lights.isEmpty) {
               return const Center(child: Text('No lighting found.'));
             }

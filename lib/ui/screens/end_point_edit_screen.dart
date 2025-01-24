@@ -1,11 +1,10 @@
 // end_point_edit_screen.dart
+import 'package:deferred_state/deferred_state.dart';
 import 'package:flutter/material.dart';
-import 'package:future_builder_ex/future_builder_ex.dart';
 import 'package:pig_common/pig_common.dart';
 
 import '../../api/end_point_api.dart';
 import '../../util/exceptions.dart';
-import '../widgets/async_state.dart';
 import '../widgets/hmb_toast.dart';
 
 class EndPointEditScreen extends StatefulWidget {
@@ -18,7 +17,7 @@ class EndPointEditScreen extends StatefulWidget {
   _EndPointEditScreenState createState() => _EndPointEditScreenState();
 }
 
-class _EndPointEditScreenState extends AsyncState<EndPointEditScreen> {
+class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
   final _formKey = GlobalKey<FormState>();
   final EndPointApi api = EndPointApi();
 
@@ -83,9 +82,9 @@ class _EndPointEditScreenState extends AsyncState<EndPointEditScreen> {
         appBar: AppBar(
           title: Text(isNew ? 'Add EndPoint' : 'Edit EndPoint'),
         ),
-        body: FutureBuilderEx(
-          future: initialised,
-          builder: (ctx, _) => Form(
+        body: DeferredBuilder(
+          this,
+          builder: (ctx) => Form(
             key: _formKey,
             child: ListView(
               padding: const EdgeInsets.all(16),

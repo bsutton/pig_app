@@ -4,7 +4,8 @@ import '../error.dart';
 import '../screens/end_point_screen.dart';
 import '../screens/first_run_screen.dart';
 import '../screens/forgotten_password_screen.dart';
-import '../screens/garden_bed_screen.dart';
+import '../screens/garden_bed_config_list.dart';
+import '../screens/garden_bed_list_screen.dart';
 import '../screens/history_screen.dart';
 import '../screens/lighting_view_screen.dart';
 import '../screens/login_screen.dart';
@@ -67,6 +68,12 @@ GoRouter get router => GoRouter(
           builder: (_, __) =>
               const HomeWithDrawer(initialScreen: LightingViewScreen()),
         ),
+        GoRoute(
+          path: '/garden_beds',
+          builder: (_, __) =>
+              const HomeWithDrawer(initialScreen: GardenBedListScreen()),
+        ),
+
         GoRoute(
           path: '/overview',
           builder: (_, __) =>
