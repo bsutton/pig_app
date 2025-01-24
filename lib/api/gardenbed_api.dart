@@ -66,26 +66,46 @@ class GardenBedApi {
     }
   }
 
-  Future<void> save({
-    required String name,
-    required String description,
-    required int valveId,
-    int? id,
-    int? masterValveId,
-  }) async {
+  Future<void> save(GardenBedData bed) async {
     final uri = Uri.parse('$serverUrl/garden_bed/save');
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'id': id,
-        'name': name,
-        'description': description,
-        'valve_id': valveId,
-        'master_valve_id': masterValveId,
-      }),
+      body: jsonEncode(bed.toJson()),
     );
 
+    if (response.statusCode != 200) {
+      throw NetworkException(response);
+    }
+  }
+
+  Future<void> startTimer(
+      int bedId, Duration duration, String description) async {
+    final url = Uri.parse('$serverUrl/garden_bed/start_timer');
+    final http.Response response;
+    try {
+      print('trying');
+      response = await http.post(url,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'bedId': bedId,
+            'durationSeconds': duration.inSeconds,
+            'description': description
+          }));
+      print('returned');
+      if (response.statusCode != 200) {
+        throw NetworkException(response);
+      }
+    } catch (e) {
+      print('Exception thrown: $e');
+    }
+  }
+
+  Future<void> stopTimer(int bedId) async {
+    final url = Uri.parse('$serverUrl/garden_bed/stop_timer');
+    final response = await http.post(url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'bedId': bedId}));
     if (response.statusCode != 200) {
       throw NetworkException(response);
     }
