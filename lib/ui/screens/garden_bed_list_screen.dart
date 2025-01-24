@@ -8,7 +8,7 @@ import '../../api/gardenbed_api.dart';
 
 /// Hypothetical API class to fetch and modify garden bed states.
 import '../../util/exceptions.dart';
-import '../dialog/time_dialog.dart';
+import '../dialog/timer_dialog.dart';
 import '../widgets/hmb_toast.dart';
 
 /// The screen that displays a list of garden beds with on/off toggles,
@@ -84,14 +84,13 @@ class _GardenBedListScreenState extends DeferredState<GardenBedListScreen> {
 
   /// If toggling ON, ask for a duration in minutes
   Future<void> _onStartWatering(GardenBedData bed) async {
-    final minutes = await _showTimerDialog();
-    if (minutes == null) {
+    final duration = await _showTimerDialog();
+    if (duration == null) {
       // user canceled
       return;
     }
     try {
-      await api.startTimer(
-          bed.id!, Duration(minutes: minutes), 'User initiated');
+      await api.startTimer(bed.id!, duration, 'User initiated');
       HMBToast.info('Started watering bed: ${bed.name}');
       await _refresh();
     } on NetworkException catch (e) {
@@ -111,7 +110,7 @@ class _GardenBedListScreenState extends DeferredState<GardenBedListScreen> {
   }
 
   /// Show a dialog for the user to enter watering duration in minutes
-  Future<int?> _showTimerDialog() async => TimerDialog.show(
+  Future<Duration?> _showTimerDialog() async => TimerDialog.show(
         context,
         title: 'Select Watering Time',
         onTimerSelected: (duration) {
