@@ -1,9 +1,8 @@
 // overview_screen.dart
+import 'package:deferred_state/deferred_state.dart';
 import 'package:flutter/material.dart';
-import 'package:future_builder_ex/future_builder_ex.dart';
 
 import '../../api/overview_api.dart';
-import '../widgets/async_state.dart';
 
 class OverviewScreen extends StatefulWidget {
   const OverviewScreen({super.key});
@@ -12,13 +11,13 @@ class OverviewScreen extends StatefulWidget {
   _OverviewScreenState createState() => _OverviewScreenState();
 }
 
-class _OverviewScreenState extends AsyncState<OverviewScreen> {
-  late OverviewData? _overviewFuture;
+class _OverviewScreenState extends DeferredState<OverviewScreen> {
+  late OverviewData? _overviewData;
 
   final api = OverviewApi();
   @override
   Future<void> asyncInitState() async {
-    _overviewFuture = await api.fetchOverviewData();
+    _overviewData = await api.fetchOverviewData();
   }
 
   @override
@@ -26,18 +25,18 @@ class _OverviewScreenState extends AsyncState<OverviewScreen> {
         appBar: AppBar(
           title: const Text('Overview'),
         ),
-        body: FutureBuilderEx<void>(
-          future: initialised,
-          builder: (context, _) {
-            if (_overviewFuture == null) {
+        body: DeferredBuilder(
+          this,
+          builder: (context) {
+            if (_overviewData == null) {
               return const Center(child: Text('No data available'));
             }
 
             // If no garden beds, show the “getting started” message
-            if (_overviewFuture!.gardenBedsCount == 0) {
-              return _buildGettingStarted(context, _overviewFuture!);
+            if (_overviewData!.gardenBedsCount == 0) {
+              return _buildGettingStarted(context, _overviewData!);
             } else {
-              return _buildOverview(context, _overviewFuture!);
+              return _buildOverview(context, _overviewData!);
             }
           },
         ),
