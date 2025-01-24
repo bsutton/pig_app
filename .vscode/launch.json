@@ -27,6 +27,17 @@
             ],
         },
         {
+            "name": "pig_app-linux-live",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "-d",
+                "linux",
+                "--dart-define=SERVER_URL=http://irrigation:80"
+            ],
+        },
+        {
             "name": "pig_app-selected-device",
             "request": "launch",
             "type": "dart",
