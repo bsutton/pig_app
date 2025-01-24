@@ -8,6 +8,8 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:toastification/toastification.dart';
 
+// import 'api/http/http_client_factory.dart'
+//     if (dart.library.js_interop) 'api/http/http_client_factory_web.dart' as http_factory;
 import 'ui/error.dart';
 import 'ui/nav/route.dart';
 import 'ui/widgets/blocking_ui.dart';
@@ -26,54 +28,46 @@ Future<void> main(List<String> args) async {
   final packageInfo = await PackageInfo.fromPlatform();
   Log.i('Package Name: ${packageInfo.packageName}');
 
-  // Initialize Sentry.
-  // await SentryFlutter.init(
-  //   (options) {
-  //     options
-  //       ..dsn =
-  //           'https://17bb41df4a5343530bfcb92553f4c5a7@o4507706035994624.ingest.us.sentry.io/4507706038157312'
-  //       ..tracesSampleRate = 1.0
-  //       ..profilesSampleRate = 1.0;
-  //   },
-  //   appRunner: () {
-
   // BlockingUIRunner key
   final blockingUIKey = GlobalKey();
 
   runApp(
-    // Wrap the entire app with a Container and DecoratedBox
-    ToastificationWrapper(
-      child: MaterialApp.router(
-        theme: theme,
-        routerConfig: router,
-
-        // 1) Use `builder` to place your custom logic (BlockingUIRunner).
-        // 2) `child` is the routed screen from routerConfig.
-        builder: (context, child) => Stack(
-          children: [
-            // The main content, wrapped by your blocking logic:
-            DecoratedBox(
-              position: DecorationPosition.foreground,
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      color: isMobile ? Colors.black : Colors.white)),
-              child: BlockingUIRunner(
-                key: blockingUIKey,
-                slowAction: () => _initialise(context),
-                label: 'Upgrading your database.',
-                builder: (context) => child ?? const SizedBox.shrink(),
-              ),
+      // Provider<Client>(
+      //       // Reusing the same `Client` may:
+      //       // - reduce memory usage
+      //       // - allow caching of fetched URLs
+      //       // - allow connections to be persisted
+      //       create: (_) => http_factory.httpClient(),
+      //       dispose: (_, client) => client.close(),
+      //       child:
+      // Wrap the entire app with a Container and DecoratedBox
+      ToastificationWrapper(
+    child: MaterialApp.router(
+      theme: theme,
+      routerConfig: router,
+      builder: (context, child) => Stack(
+        children: [
+          DecoratedBox(
+            position: DecorationPosition.foreground,
+            decoration: BoxDecoration(
+                border:
+                    Border.all(color: isMobile ? Colors.black : Colors.white)),
+            child: BlockingUIRunner(
+              key: blockingUIKey,
+              slowAction: () => _initialise(context),
+              label: 'Upgrading your database.',
+              builder: (context) => child ?? const SizedBox.shrink(),
             ),
+          ),
 
-            // The overlay
-            const BlockingOverlay(),
-          ],
-        ),
+          // The overlay
+          const BlockingOverlay(),
+        ],
       ),
     ),
-    // );
-    // },
-  );
+  )
+      // )
+      );
 }
 
 ThemeData get theme => ThemeData(
