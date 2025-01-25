@@ -5,7 +5,6 @@ import '../../util/exceptions.dart';
 import '../../util/hmb_theme.dart';
 import 'color_ex.dart';
 import 'layout/hmb_empty.dart';
-import 'svg.dart';
 
 class HMBButton extends StatelessWidget {
   const HMBButton({
@@ -53,24 +52,10 @@ class HMBButtonPrimary extends StatelessWidget {
     required this.onPressed,
     super.key,
     this.enabled = true,
-  })  : svg = null,
-        svgColor = null;
-
-  const HMBButtonPrimary.withSvg({
-    required this.label,
-    required this.svg,
-    super.key,
-    this.onPressed,
-    this.enabled = true,
-    this.svgColor,
   });
 
   final String label;
   final VoidCallback? onPressed;
-
-  final String? svg;
-
-  final Color? svgColor;
 
   final bool enabled;
 
@@ -83,9 +68,7 @@ class HMBButtonPrimary extends StatelessWidget {
         onPressed: (enabled ? onPressed : null),
         label:
             Text(label, style: const TextStyle(color: HMBColors.buttonLabel)),
-        icon: svg == null
-            ? const HMBEmpty()
-            : Svg(svg!, height: 24, width: 24, color: svgColor),
+        icon: const HMBEmpty(),
       );
 }
 
