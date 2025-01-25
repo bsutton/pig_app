@@ -3,13 +3,14 @@ import 'dart:async';
 import 'package:dcli_core/dcli_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:toastification/toastification.dart';
 
 // import 'api/http/http_client_factory.dart'
 //     if (dart.library.js_interop) 'api/http/http_client_factory_web.dart' as http_factory;
+import 'api/notification_manager.dart';
 import 'ui/error.dart';
 import 'ui/nav/route.dart';
 import 'ui/widgets/blocking_ui.dart';
@@ -25,8 +26,10 @@ Future<void> main(List<String> args) async {
   // Ensure WidgetsFlutterBinding is initialized before any async code.
   WidgetsFlutterBinding.ensureInitialized();
 
-  final packageInfo = await PackageInfo.fromPlatform();
-  Log.i('Package Name: ${packageInfo.packageName}');
+  await dotenv.load();
+
+  /// Requests notification updates for the webserver.
+  NotificationManager().init();
 
   // BlockingUIRunner key
   final blockingUIKey = GlobalKey();

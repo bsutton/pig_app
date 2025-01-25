@@ -1,8 +1,10 @@
-import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-const debugServerUrl = 'http://localhost:1080';
+const wsSocketUrl = 'ws://irrigation:1080';
 
 const releaseServerUrl = 'http://irrigation';
 
 // ignore: do_not_use_environment
-String serverUrl = Platform.environment['SERVER_URL'] ?? 'http://irrigation';
+String serverUrl = dotenv.env['SERVER_URL'] ?? releaseServerUrl;
+
+String webSocketUrl = dotenv.env['WS_SERVER_URL'] ?? wsSocketUrl;
