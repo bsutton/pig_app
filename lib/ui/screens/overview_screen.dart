@@ -49,7 +49,7 @@ class _OverviewScreenState extends DeferredState<OverviewScreen> {
       message = '''
 To get started, you need to define one or more End Points.
 
-An End Point is a Valve or Light, associating a physical Raspberry Pi pin.
+An End Point is a Valve or Light associated with a physical Raspberry Pi GIO Pin.
 
 To configure an End Point, select the 'Configuration' menu → 'End Points'.
 
