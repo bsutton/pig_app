@@ -26,7 +26,7 @@ Future<void> main(List<String> args) async {
   // Ensure WidgetsFlutterBinding is initialized before any async code.
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load();
+  await dotenv.load(isOptional: true);
 
   /// Requests notification updates for the webserver.
   NotificationManager().init();
