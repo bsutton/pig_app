@@ -13,10 +13,10 @@ import 'settings.dart';
 class NotificationManager with WidgetsBindingObserver {
   factory NotificationManager() => instance;
   NotificationManager._();
-  static NotificationManager instance = NotificationManager._();
+  static var instance = NotificationManager._();
 
   late WebSocketChannel _channel;
-  bool _isConnected = false;
+  var _isConnected = false;
 
   /// List of listeners to receive notifications.
   final List<void Function(Notice)> _listeners = [];

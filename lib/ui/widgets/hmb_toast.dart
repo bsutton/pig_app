@@ -19,7 +19,6 @@ class HMBToast {
     toastification.show(
       type: ToastificationType.error,
       style: ToastificationStyle.minimal,
-      closeButtonShowType: CloseButtonShowType.always,
       // acknowledgmentRequired ? null : const Duration(seconds: 6),
       description: Text(
         text,

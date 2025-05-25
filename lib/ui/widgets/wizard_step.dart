@@ -8,7 +8,7 @@ abstract class WizardStep {
     required String title,
   }) : _title = title;
   final String _title;
-  bool buildRequired = false;
+  var buildRequired = false;
 
   WizardState? wizardState;
 
@@ -33,7 +33,7 @@ abstract class WizardStep {
   /// shown to a user based on a selection they make whilst in the
   /// wizard. If you change the 'hidden' state of a step you
   /// need to call [setState] to force the wizard to redraw.
-  bool hidden = false;
+  var hidden = false;
 
   void setState(VoidCallback fn) {
     wizardState?.refresh(fn);

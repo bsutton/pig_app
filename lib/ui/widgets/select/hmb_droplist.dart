@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../util/hmb_theme.dart';
@@ -71,7 +72,7 @@ class _HMBDroplist<T> extends StatefulWidget {
 
 class _HMBDroplistState<T> extends State<_HMBDroplist<T>> {
   T? _selectedItem;
-  bool _loading = true;
+  var _loading = true;
 
   @override
   void initState() {
@@ -121,7 +122,9 @@ class _HMBDroplistState<T> extends State<_HMBDroplist<T>> {
               title: widget.title,
               selectedItem: _selectedItem,
               allowClear: !widget.required,
-              onAdd: widget.onAdd != null ? _handleAdd : null, // Pass the "Add" handler
+              onAdd: widget.onAdd != null
+                  ? _handleAdd
+                  : null, // Pass the "Add" handler
             ),
           );
 

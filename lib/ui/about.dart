@@ -73,6 +73,6 @@ class _AboutScreenState extends State<AboutScreen> {
           textAlign: TextAlign.center,
         ),
         HMBLinkButton(
-            onPressed: () async => _launchURL(link), label: label, link: link)
+            onPressed: () => _launchURL(link), label: label, link: link)
       ];
 }

@@ -55,7 +55,7 @@ class Wizard extends StatefulWidget {
 class WizardState extends State<Wizard> {
   static const double lineInset = 7;
   static const double lineWidth = 24;
-  static const Duration crossFadeDuration = Duration(milliseconds: 500);
+  static const crossFadeDuration = Duration(milliseconds: 500);
 
   final ScrollPhysics physics = const ClampingScrollPhysics();
 
@@ -63,11 +63,11 @@ class WizardState extends State<Wizard> {
   late final List<GlobalKey> _keys;
 
   late WizardStep _currentStep;
-  int _currentStepIndex = 0;
+  var _currentStepIndex = 0;
 
-  bool onFinishCalled = false;
-  final bool _pageLoading = false;
-  final bool _inTransition = false;
+  var onFinishCalled = false;
+  final _pageLoading = false;
+  final _inTransition = false;
 
   Future<void> _popInvoked(BuildContext context) async {
     if (!isFirstVisible(_currentStepIndex)) {

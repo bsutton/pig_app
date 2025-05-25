@@ -175,40 +175,39 @@ class _EndPointConfigurationScreenState
         ],
       );
 
- Widget _buildEndpointList(EndPointListData data) {
-  if (data.endPoints.isEmpty) {
-    return const Center(child: Text('No EndPoints configured.'));
+  Widget _buildEndpointList(EndPointListData data) {
+    if (data.endPoints.isEmpty) {
+      return const Center(child: Text('No EndPoints configured.'));
+    }
+    return ListView.builder(
+      itemCount: data.endPoints.length,
+      itemBuilder: (context, index) {
+        final ep = data.endPoints[index];
+        return Card(
+          margin: const EdgeInsets.all(8),
+          child: ListTile(
+            title: Text(ep.name),
+            subtitle: Text('${ep.endPointType}, ${ep.pinAssignment}'),
+            trailing: Switch(
+              value: ep.isOn,
+              onChanged: (val) => _toggleEndPoint(ep, val),
+            ),
+            leading: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () => _editEndPoint(ep),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _deleteEndPoint(ep),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
-  return ListView.builder(
-    itemCount: data.endPoints.length,
-    itemBuilder: (context, index) {
-      final ep = data.endPoints[index];
-      return Card(
-        margin: const EdgeInsets.all(8),
-        child: ListTile(
-          title: Text(ep.name),
-          subtitle: Text('${ep.endPointType}, ${ep.pinAssignment}'),
-          trailing: Switch(
-            value: ep.isOn,
-            onChanged: (val) async => _toggleEndPoint(ep, val),
-          ),
-          leading: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit, color: Colors.blue),
-                onPressed: () async => _editEndPoint(ep),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () async => _deleteEndPoint(ep),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-}
-
 }

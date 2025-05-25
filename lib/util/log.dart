@@ -102,11 +102,9 @@ class Log extends Logger {
     Log.i(color.apply(message), error: error, stackTrace: stackTrace);
   }
 
-  static void autoInit() {
-    
-  }
+  static void autoInit() {}
 
-  /// Call this method to prep the logger so that we 
+  /// Call this method to prep the logger so that we
   static void configure(String currentWorkingDirectory) {
     _self = Log._internal(currentWorkingDirectory);
 
@@ -126,7 +124,7 @@ class MyLogPrinter extends LogPrinter {
   MyLogPrinter(this.currentWorkingDirectory);
 
   ///
-  bool colors = true;
+  var colors = true;
 
   ///
   String currentWorkingDirectory;

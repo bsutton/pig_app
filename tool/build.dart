@@ -65,8 +65,7 @@ Create a signed release appbundle suitable to upload to Google Play store.''')
     }
     if (wasm) {
       buildWasm(includeSourceMaps: sourceMaps);
-    }
-    if (release) {
+    } else if (release) {
       buildAppBundle(newVersion);
     } else {
       buildApk();
@@ -99,10 +98,12 @@ void installApk() {
 }
 
 void buildApk() {
+  print(green('building apk'));
   'flutter build apk'.run;
 }
 
 void buildWasm({required bool includeSourceMaps}) {
+  print(green('building wasm bundle'));
   if (includeSourceMaps) {
     // build for debugging.
     'flutter  build web --wasm --no-strip-wasm --source-maps'.start();
@@ -112,6 +113,7 @@ void buildWasm({required bool includeSourceMaps}) {
 }
 
 void buildAppBundle(Version newVersion) {
+  print(green('building app bundle'));
   'flutter build appbundle --release'.start();
 
   final targetPath =

@@ -7,7 +7,7 @@ class MyDrawer extends StatelessWidget {
   MyDrawer({super.key});
 
   /// Here’s a revised structure reflecting the Java app’s menu:
-  final List<DrawerItem> drawerItems = [
+  final drawerItems = <DrawerItem>[
     DrawerItem(title: 'Overview', route: '/overview'),
     DrawerItem(title: 'Garden Beds', route: '/garden_beds'),
     DrawerItem(title: 'Lighting', route: '/lighting'),

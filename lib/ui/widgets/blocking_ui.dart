@@ -1,4 +1,4 @@
-// ignore_for_file: unused_element
+// ignore_for_file: unused_element, unused_element_parameter
 
 import 'dart:async';
 
@@ -230,7 +230,7 @@ class BlockingUIRunner extends StatefulWidget {
 }
 
 class _BlockingUIRunnerState extends State<BlockingUIRunner> {
-  bool _initialised = false;
+  var _initialised = false;
   late final CompleterEx<void> completer;
 
   @override
@@ -313,7 +313,7 @@ class BlockingUI extends JuneState {
   StackTrace get stackTrace => actions.peek().stackTrace;
 
   DateTime? startTime;
-  int count = 0;
+  var count = 0;
 
   ///
   /// begin

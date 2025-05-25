@@ -19,13 +19,13 @@ class EndPointEditScreen extends StatefulWidget {
 
 class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
   final _formKey = GlobalKey<FormState>();
-  final EndPointApi api = EndPointApi();
+  final api = EndPointApi();
 
   bool get isNew => widget.endPointId == null;
 
   // Local data
   int? endPointId;
-  String name = '';
+  var name = '';
   GPIOPinAssignment? pinAssignment;
   PinActivationType? activationType;
   EndPointType? endPointType;

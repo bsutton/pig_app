@@ -18,7 +18,7 @@ import 'util/hmb_theme.dart';
 import 'util/log.dart';
 import 'util/platform_ex.dart';
 
-bool firstRun = false;
+var firstRun = false;
 
 Future<void> main(List<String> args) async {
   Log.configure('.');
@@ -115,7 +115,7 @@ ThemeData get theme => ThemeData(
         confirmButtonStyle: TextButton.styleFrom(foregroundColor: Colors.white),
         cancelButtonStyle: TextButton.styleFrom(foregroundColor: Colors.white),
       ),
-      dialogTheme: const DialogTheme(
+      dialogTheme: const DialogThemeData(
         titleTextStyle: TextStyle(
             color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
         contentTextStyle: TextStyle(color: Colors.white),
@@ -131,7 +131,7 @@ ThemeData get theme => ThemeData(
       visualDensity: VisualDensity.adaptivePlatformDensity,
     );
 
-bool initialised = false;
+var initialised = false;
 Future<void> _initialise(BuildContext context) async {
   if (!initialised) {
     try {

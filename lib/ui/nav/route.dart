@@ -14,8 +14,8 @@ import '../screens/reset_password_screen.dart';
 import '../screens/schedule_screen.dart';
 import 'home_with_drawer.dart';
 
-bool userIsLoggedIn = true; // Global or stored in a Provider/Bloc, etc.
-bool systemConfigured = true;
+var userIsLoggedIn = true; // Global or stored in a Provider/Bloc, etc.
+var systemConfigured = true;
 
 GoRouter get router => GoRouter(
       debugLogDiagnostics: true,

@@ -42,7 +42,7 @@ class TickBuilder extends StatefulWidget {
 }
 
 class _TickBuilderState extends State<TickBuilder> {
-  int tickCount = 0;
+  var tickCount = 0;
 
   @override
   void initState() {

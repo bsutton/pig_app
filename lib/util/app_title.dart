@@ -1,7 +1,7 @@
 import 'package:june/june.dart';
 
 class HMBTitle extends JuneState {
-  String title = 'HMB';
+  var title = 'HMB';
 }
 
 void setAppTitle(String pageTitle) {
