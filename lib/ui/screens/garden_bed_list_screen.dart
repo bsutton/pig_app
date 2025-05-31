@@ -69,7 +69,9 @@ class _GardenBedListScreenState extends DeferredState<GardenBedListScreen> {
             bed.remainingDuration =
                 bed.remainingDuration - const Duration(seconds: 1);
             if (bed.remainingDuration.inSeconds <= 0) {
-              bed.remainingDuration = Duration.zero;
+              bed
+                ..remainingDuration = Duration.zero
+                ..isOn = false;
               timer.cancel();
               timers.remove(bed.id);
             }
@@ -86,63 +88,62 @@ class _GardenBedListScreenState extends DeferredState<GardenBedListScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Garden Beds')),
-        body: DeferredBuilder(
-          this,
-          builder: (context) {
-            if (listData.beds.isEmpty) {
-              return const Center(child: Text('No garden beds found.'));
-            }
-            return ListView.builder(
-              itemCount: listData.beds.length,
-              itemBuilder: (ctx, index) {
-                final bed = listData.beds[index];
-                return StatefulBuilder(
-                  builder: (context, setState) => Card(
-                    margin: const EdgeInsets.all(8),
-                    child: ListTile(
-                      title: Text(bed.name!),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (bed.remainingDuration != Duration.zero)
-                            Text(
-                              'Remaining: ${_formatDuration(bed.remainingDuration)}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
-                              ),
-                            ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Last: ${bed.lastWateringDateTimeString}'),
-                              Text(
-                                  'Duration: ${bed.lastWateringDurationString}'),
-                            ],
+    appBar: AppBar(title: const Text('Garden Beds')),
+    body: DeferredBuilder(
+      this,
+      builder: (context) {
+        if (listData.beds.isEmpty) {
+          return const Center(child: Text('No garden beds found.'));
+        }
+        return ListView.builder(
+          itemCount: listData.beds.length,
+          itemBuilder: (ctx, index) {
+            final bed = listData.beds[index];
+            return StatefulBuilder(
+              builder: (context, setState) => Card(
+                margin: const EdgeInsets.all(8),
+                child: ListTile(
+                  title: Text(bed.name!),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (bed.remainingDuration != Duration.zero)
+                        Text(
+                          'Remaining: ${_formatDuration(bed.remainingDuration)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
                           ),
+                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Last: ${bed.lastWateringDateTimeString}'),
+                          Text('Duration: ${bed.lastWateringDurationString}'),
                         ],
                       ),
-                      trailing: Switch(
-                        value: bed.isOn,
-                        onChanged: (on) async {
-                          if (on) {
-                            await _onStartWatering(bed);
-                            setState(() {});
-                          } else {
-                            await _stopWatering(bed);
-                            setState(() {});
-                          }
-                        },
-                      ),
-                    ),
+                    ],
                   ),
-                );
-              },
+                  trailing: Switch(
+                    value: bed.isOn,
+                    onChanged: (on) async {
+                      if (on) {
+                        await _onStartWatering(bed);
+                        setState(() {});
+                      } else {
+                        await _stopWatering(bed);
+                        setState(() {});
+                      }
+                    },
+                  ),
+                ),
+              ),
             );
           },
-        ),
-      );
+        );
+      },
+    ),
+  );
 
   /// If toggling ON, ask for a duration in minutes
   Future<void> _onStartWatering(GardenBedData bed) async {
@@ -173,12 +174,12 @@ class _GardenBedListScreenState extends DeferredState<GardenBedListScreen> {
 
   /// Show a dialog for the user to enter watering duration in minutes
   Future<Duration?> _showTimerDialog() async => TimerDialog.show(
-        context,
-        title: 'Select Watering Time',
-        onTimerSelected: (duration) {
-          print('Timer selected: ${duration.inMinutes} minutes');
-        },
-      );
+    context,
+    title: 'Select Watering Time',
+    onTimerSelected: (duration) {
+      print('Timer selected: ${duration.inMinutes} minutes');
+    },
+  );
 
   /// Format a `Duration` into a human-readable string
   String _formatDuration(Duration duration) {
