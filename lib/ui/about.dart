@@ -44,7 +44,7 @@ class _AboutScreenState extends State<AboutScreen> {
               ...linkButton(
                   description: 'Have a problem; raise issues',
                   label: 'GitHub Repository',
-                  link: 'https://github.com/bsutton/hmb'),
+                  link: 'https://github.com/bsutton/pigation2'),
               ...linkButton(
                   description: 'Feel free to start a discussion:',
                   label: 'Discussions',

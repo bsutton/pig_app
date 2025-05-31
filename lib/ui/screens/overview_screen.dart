@@ -1,6 +1,8 @@
-// overview_screen.dart
+// lib/src/ui/overview/overview_screen.dart
+
 import 'package:deferred_state/deferred_state.dart';
 import 'package:flutter/material.dart';
+import 'package:pig_common/pig_common.dart';
 
 import '../../api/overview_api.dart';
 
@@ -15,32 +17,34 @@ class _OverviewScreenState extends DeferredState<OverviewScreen> {
   late OverviewData? _overviewData;
 
   final api = OverviewApi();
+
   @override
   Future<void> asyncInitState() async {
+    // Now this call internally fetches both (a) your app’s “counts/events”
+    // and (b) the BOM weather. By the time it completes, _overviewData.temp, etc.
+    // are all populated.
     _overviewData = await api.fetchOverviewData();
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Overview'),
-        ),
-        body: DeferredBuilder(
-          this,
-          builder: (context) {
-            if (_overviewData == null) {
-              return const Center(child: Text('No data available'));
-            }
+    appBar: AppBar(title: const Text('Overview')),
+    body: DeferredBuilder(
+      this,
+      builder: (context) {
+        if (_overviewData == null) {
+          return const Center(child: Text('No data available'));
+        }
 
-            // If no garden beds, show the “getting started” message
-            if (_overviewData!.gardenBedsCount == 0) {
-              return _buildGettingStarted(context, _overviewData!);
-            } else {
-              return _buildOverview(context, _overviewData!);
-            }
-          },
-        ),
-      );
+        // If no garden beds, show the “getting started” message
+        if (_overviewData!.gardenBedsCount == 0) {
+          return _buildGettingStarted(context, _overviewData!);
+        } else {
+          return _buildOverview(context, _overviewData!);
+        }
+      },
+    ),
+  );
 
   Widget _buildGettingStarted(BuildContext context, OverviewData data) {
     final endpointsExist = data.endpointsCount > 0;
@@ -65,42 +69,42 @@ To configure a Garden Bed, select the 'Configuration' menu → 'Garden Beds'.
 ''';
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Text(message),
-    );
+    return Padding(padding: const EdgeInsets.all(16), child: Text(message));
   }
 
-  Widget _buildOverview(BuildContext context, OverviewData data) =>
-      SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Current Temp: ${data.temp} °C'),
-            const SizedBox(height: 8),
-            Text('Forecast High: ${data.forecastHigh} °C'),
-            Text('Forecast Low: ${data.forecastLow} °C'),
-            const SizedBox(height: 8),
-            const Text('Rain Data'),
-            Text('Last 24 Hours: ${data.rain24} mm'),
-            Text('Last 7 days: ${data.rain7days} mm'),
-            const SizedBox(height: 16),
-            const Text('Watering Events:'),
-            for (final event in data.lastWateringEvents)
-              _buildHistoryRow(event),
-          ],
-        ),
-      );
+  Widget _buildOverview(
+    BuildContext context,
+    OverviewData data,
+  ) => SingleChildScrollView(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Now that OverviewData.temp was populated via BomApi,
+        // this will show the live current temperature:
+        Text('Current Temp: ${data.temp.toStringAsFixed(1)} °C'),
+        const SizedBox(height: 8),
+        Text('Forecast High: ${data.forecastHigh.toStringAsFixed(1)} °C'),
+        Text('Forecast Low: ${data.forecastLow.toStringAsFixed(1)} °C'),
+        const SizedBox(height: 8),
+        const Text('Rain Data'),
+        Text('Last 24 Hours: ${data.rain24.toStringAsFixed(1)} mm'),
+        Text('Last 7 days: ${data.rain7days.toStringAsFixed(1)} mm'),
+        const SizedBox(height: 16),
+        const Text('Watering Events:'),
+        for (final event in data.lastWateringEvents) _buildHistoryRow(event),
+      ],
+    ),
+  );
 
   Widget _buildHistoryRow(WateringEvent event) => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(formatDate(event.start)),
-          Text('${event.durationMinutes} min'),
-          Text(event.gardenBedName),
-        ],
-      );
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(formatDate(event.start)),
+      Text('${event.durationMinutes} min'),
+      Text(event.gardenBedName),
+    ],
+  );
 
   /// Example format for a DateTime
   String formatDate(DateTime dt) {

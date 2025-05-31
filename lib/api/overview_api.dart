@@ -1,77 +1,53 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:pig_common/pig_common.dart';
 
+import '../util/exceptions.dart';
+
+/// After adding these imports, make sure you import BomApi below.
+import 'bom_api.dart';
 import 'settings.dart';
 
 class OverviewApi {
+  final _bom = BomApi();
+
+  /// Fetches both (a) the “home‐grown” overview data (counts of beds, etc.)
+  /// and (b) the BOM weather. Then returns a combined `OverviewData`.
   Future<OverviewData> fetchOverviewData() async {
+    // 1. Fetch whatever your existing server‐side endpoint returns:
     final uri = Uri.parse('$serverUrl/overview');
-    final response = await http.post(uri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({})); // no request body needed in example
-    if (response.statusCode == 200) {
-      final jsonMap = jsonDecode(response.body) as Map<String, dynamic>;
-      return OverviewData.fromJson(jsonMap);
-    } else {
-      throw Exception('Failed to load overview: ${response.body}');
-    }
-  }
-}
-
-/// Data class for entire overview payload
-class OverviewData {
-  OverviewData({
-    required this.gardenBedsCount,
-    required this.endpointsCount,
-    required this.temp,
-    required this.forecastHigh,
-    required this.forecastLow,
-    required this.rain24,
-    required this.rain7days,
-    required this.lastWateringEvents,
-  });
-
-  factory OverviewData.fromJson(Map<String, dynamic> json) {
-    final events = (json['lastWateringEvents'] as List<dynamic>?)
-        ?.map((e) => WateringEvent.fromJson(e as Map<String, dynamic>))
-        .toList();
-
-    return OverviewData(
-      gardenBedsCount: json['gardenBedsCount'] as int,
-      endpointsCount: json['endpointsCount'] as int,
-      temp: json['temp'] as int,
-      forecastHigh: json['forecastHigh'] as int,
-      forecastLow: json['forecastLow'] as int,
-      rain24: json['rain24'] as int,
-      rain7days: json['rain7days'] as int,
-      lastWateringEvents: events ?? [],
+    final resp = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({}),
     );
+    if (resp.statusCode != 200) {
+      throw NetworkException(resp, action: 'Fetching overview data');
+    }
+
+    // Parse the “garden‐bed / endpoint” portion of your API response:
+    final decoded = jsonDecode(resp.body) as Map<String, dynamic>;
+    // e.g. maybe your server returned:
+    // {
+    //   "gardenBedsCount": 3,
+    //   "endpointsCount": 5,
+    //   "lastWateringEvents": [ … ],
+    //   "…otherFields…": …
+    // }
+    final serverOverview = OverviewData.fromJson(decoded);
+
+    // // 2. Fetch BOM weather in parallel (or serially, if you prefer). Here we do it in parallel:
+    // final weather = await _bom.fetchWeather();
+
+    // // 3. Copy the new weather fields into our `serverOverview`:
+    // serverOverview
+    //   ..temp = weather.currentTempC
+    //   ..forecastHigh = weather.forecastHighC
+    //   ..forecastLow = weather.forecastLowC
+    //   ..rain24 = weather.rainLast24mm
+    //   ..rain7days = weather.rainLast7Daysmm;
+
+    return serverOverview;
   }
-  final int gardenBedsCount;
-  final int endpointsCount;
-  final int temp;
-  final int forecastHigh;
-  final int forecastLow;
-  final int rain24;
-  final int rain7days;
-  final List<WateringEvent> lastWateringEvents;
-}
-
-/// Data class for watering events
-class WateringEvent {
-  WateringEvent({
-    required this.start,
-    required this.durationMinutes,
-    required this.gardenBedName,
-  });
-
-  factory WateringEvent.fromJson(Map<String, dynamic> json) => WateringEvent(
-        start: DateTime.parse(json['start'] as String),
-        durationMinutes: json['durationMinutes'] as int,
-        gardenBedName: json['gardenBedName'] as String,
-      );
-  final DateTime start;
-  final int durationMinutes;
-  final String gardenBedName;
 }

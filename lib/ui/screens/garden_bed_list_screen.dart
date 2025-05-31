@@ -23,16 +23,29 @@ class _GardenBedListScreenState extends DeferredState<GardenBedListScreen> {
   final api = GardenBedApi(); // Example: your actual API
 
   final timers = <int, Timer>{};
+  late final NoticeListener noticeListener;
+
+  @override
+  void initState() {
+    super.initState();
+    print(orange('starting notification listener'));
+    noticeListener = NotificationManager().addListener((notice) async {
+      print('recieved notice $notice');
+      await _handleNotice(notice);
+    });
+  }
 
   @override
   Future<void> asyncInitState() async {
-    print(orange('staring notification listener'));
-    NotificationManager().addListener((notice) async {
-      print('recieved notice');
-      await _handleNotice(notice);
-    });
     listData = await _fetchData();
     _startCountdownTimers();
+  }
+
+  @override
+  void dispose() {
+    print(orange('removing notification listener'));
+    NotificationManager().removeListener(noticeListener);
+    super.dispose();
   }
 
   Future<GardenBedListData> _fetchData() async => api.fetchGardenBeds();

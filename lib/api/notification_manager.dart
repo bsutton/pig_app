@@ -8,6 +8,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'settings.dart';
 
+typedef NoticeListener = void Function(Notice);
+
 /// We use web sockets for two way communications so that
 /// we can get notifications from the server
 class NotificationManager with WidgetsBindingObserver {
@@ -46,12 +48,15 @@ class NotificationManager with WidgetsBindingObserver {
   }
 
   /// Subscribe a listener to notifications.
-  void addListener(void Function(Notice) listener) {
+  /// Returns the [NoticeListener] so you can remove
+  /// it in your dispose.
+  NoticeListener addListener(NoticeListener listener) {
     _listeners.add(listener);
+    return listener;
   }
 
   /// Unsubscribe a listener from notifications.
-  void removeListener(void Function(Map<String, dynamic>) listener) {
+  void removeListener(NoticeListener listener) {
     _listeners.remove(listener);
   }
 
@@ -76,7 +81,8 @@ class NotificationManager with WidgetsBindingObserver {
       (_channel.stream as Stream<Object?>).listen(
         (message) {
           final data = Notice.fromJson(
-              jsonDecode(message! as String) as Map<String, dynamic>);
+            jsonDecode(message! as String) as Map<String, dynamic>,
+          );
           _notifyListeners(data);
         },
         onError: (Object error) {

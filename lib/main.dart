@@ -176,7 +176,7 @@ Future<bool> _checkInstall() async {
 }
 
 Future<String> get pathToHmbFiles async =>
-    join((await getApplicationSupportDirectory()).path, 'hmb');
+    join((await getApplicationSupportDirectory()).path, 'pigation');
 
 // class ErrorApp extends StatelessWidget {
 //   const ErrorApp(this.errorMessage, {super.key});
