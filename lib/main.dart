@@ -137,8 +137,6 @@ Future<void> _initialise(BuildContext context) async {
     try {
       initialised = true;
       firstRun = await _checkInstall();
-      // ignore: use_build_context_synchronously
-
       // ignore: avoid_catches_without_on_clauses
     } catch (e, _) {
       // Capture the exception in Sentry
