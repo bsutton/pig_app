@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:future_builder_ex/future_builder_ex.dart';
 import 'package:pig_common/pig_common.dart';
 
-import '../../api/lighting_api.dart';
+import '../../api/gardenbed_api.dart';
 import '../../api/notification_manager.dart';
 import '../../util/ansi_color.dart';
 
-class HMBStatusBar extends StatefulWidget {
-  const HMBStatusBar({super.key});
+class PIGStatusBar extends StatefulWidget {
+  const PIGStatusBar({super.key});
 
   @override
-  State<HMBStatusBar> createState() => _HMBStatusBarState();
+  State<PIGStatusBar> createState() => _PIGStatusBarState();
 }
 
-class _HMBStatusBarState extends State<HMBStatusBar> {
+class _PIGStatusBarState extends State<PIGStatusBar> {
   late final NoticeListener noticeListener;
 
   @override
@@ -58,8 +58,8 @@ class _HMBStatusBarState extends State<HMBStatusBar> {
         Expanded(
           child: FutureBuilderEx(
             // ignore: discarded_futures
-            future: LightingApi().fetchLightingList(),
-            builder: (context, lightingList) => Text(
+            future: GardenBedApi().fetchGardenBeds(),
+            builder: (context, bedList) => Text(
               running.isEmpty
                   ? ''
                   : 'Running: ${running.entries.first.value.description}',
