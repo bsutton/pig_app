@@ -12,17 +12,28 @@ import 'lib/version_properties.dart';
 
 void main(List<String> args) async {
   final parser = ArgParser()
-    ..addFlag('build',
-        abbr: 'b',
-        help: 'build the apk suitable for installing the app via USB')
+    ..addFlag(
+      'build',
+      abbr: 'b',
+      help: 'build the apk suitable for installing the app via USB',
+    )
     ..addFlag('wasm', abbr: 'w', help: 'Build for wasm')
-    ..addFlag('source-maps',
-        abbr: 's',
-        help: 'when building for wasm include debug symbols and source maps')
-    ..addFlag('install',
-        abbr: 'i', help: 'install the apk to a device connected via USB')
-    ..addFlag('release', abbr: 'r', help: '''
-Create a signed release appbundle suitable to upload to Google Play store.''')
+    ..addFlag(
+      'source-maps',
+      abbr: 's',
+      help: 'when building for wasm include debug symbols and source maps',
+    )
+    ..addFlag(
+      'install',
+      abbr: 'i',
+      help: 'install the apk to a device connected via USB',
+    )
+    ..addFlag(
+      'release',
+      abbr: 'r',
+      help: '''
+Create a signed release appbundle suitable to upload to Google Play store.''',
+    )
     ..addFlag('help', abbr: 'h', help: 'Shows the help message');
 
   final results = parser.parse(args);
@@ -90,8 +101,9 @@ void _runPubGet() {
 }
 
 void installApk() {
-  print(orange(
-      'Make certain you have first run --build so you get the lastet apk'));
+  print(
+    orange('Make certain you have first run --build so you get the lastet apk'),
+  );
   // 'flutter install'.run;
 
   'adb install -r build/app/outputs/flutter-apk/app-release.apk'.run;
@@ -116,12 +128,16 @@ void buildAppBundle(Version newVersion) {
   print(green('building app bundle'));
   'flutter build appbundle --release'.start();
 
-  final targetPath =
-      join(DartProject.self.pathToProjectRoot, 'hmb-$newVersion.aab');
+  final targetPath = join(
+    DartProject.self.pathToProjectRoot,
+    'hmb-$newVersion.aab',
+  );
   if (exists(targetPath)) {
     delete(targetPath);
   }
-  move(join('build', 'app', 'outputs', 'bundle', 'release', 'app-release.aab'),
-      targetPath);
+  move(
+    join('build', 'app', 'outputs', 'bundle', 'release', 'app-release.aab'),
+    targetPath,
+  );
   print(orange('Moved the bundle to $targetPath'));
 }
