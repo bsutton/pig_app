@@ -19,7 +19,9 @@ class MyDrawer extends StatelessWidget {
       children: [
         DrawerItem(title: 'EndPoint Configuration', route: '/config/endpoints'),
         DrawerItem(
-            title: 'GardenBed Configuration', route: '/config/gardenbeds'),
+          title: 'GardenBed Configuration',
+          route: '/config/gardenbeds',
+        ),
         DrawerItem(title: 'User Admin', route: '/config/users'),
       ],
     ),
@@ -28,15 +30,15 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Drawer(
-        child: SafeArea(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: drawerItems
-                .map((item) => _buildDrawerItem(item, context))
-                .toList(),
-          ),
-        ),
-      );
+    child: SafeArea(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: drawerItems
+            .map((item) => _buildDrawerItem(item, context))
+            .toList(),
+      ),
+    ),
+  );
 
   Widget _buildDrawerItem(DrawerItem item, BuildContext context) {
     if (item.children != null && item.children!.isNotEmpty) {

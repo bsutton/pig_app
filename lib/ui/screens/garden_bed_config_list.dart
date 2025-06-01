@@ -34,7 +34,8 @@ class _GardenBedConfigurationScreenState
   Future<void> _onAddClicked() async {
     if (noValves) {
       HMBToast.error(
-          'You must add a EndPoint Valve before you can add a Garden Bed');
+        'You must add a EndPoint Valve before you can add a Garden Bed',
+      );
       return;
     }
     // Navigate to edit screen with a null bed
@@ -51,7 +52,8 @@ class _GardenBedConfigurationScreenState
     final result = await Navigator.push(
       context,
       MaterialPageRoute<bool>(
-          builder: (ctx) => GardenBedEditScreen(gardenBedId: bed.id)),
+        builder: (ctx) => GardenBedEditScreen(gardenBedId: bed.id),
+      ),
     );
     if (result ?? false) {
       await _refresh();
@@ -60,23 +62,21 @@ class _GardenBedConfigurationScreenState
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Garden Beds'),
-        ),
-        body: DeferredBuilder(
-          this,
-          builder: (context) {
-            if (beds.isEmpty) {
-              return const Center(child: Text('No garden beds found.'));
-            }
-            return _buildGardenList(bedData);
-          },
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _onAddClicked,
-          child: const Icon(Icons.add),
-        ),
-      );
+    appBar: AppBar(title: const Text('Garden Beds')),
+    body: DeferredBuilder(
+      this,
+      builder: (context) {
+        if (beds.isEmpty) {
+          return const Center(child: Text('No garden beds found.'));
+        }
+        return _buildGardenList(bedData);
+      },
+    ),
+    floatingActionButton: FloatingActionButton(
+      onPressed: _onAddClicked,
+      child: const Icon(Icons.add),
+    ),
+  );
 
   Widget _buildGardenList(GardenBedListData data) {
     if (data.beds.isEmpty) {

@@ -57,11 +57,7 @@ class HelpButton extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(dialogTitle),
-        content: child ??
-            Text(
-              helpText!,
-              textAlign: TextAlign.start,
-            ),
+        content: child ?? Text(helpText!, textAlign: TextAlign.start),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -74,20 +70,21 @@ class HelpButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IconButton(
-        icon: const Icon(Icons.help_outline),
-        tooltip: tooltip,
-        onPressed: () async => _showHelpDialog(context),
-      );
+    icon: const Icon(Icons.help_outline),
+    tooltip: tooltip,
+    onPressed: () async => _showHelpDialog(context),
+  );
 }
 
 class HelpWrapper extends StatelessWidget {
-  const HelpWrapper(
-      {required this.child,
-      required this.tooltip,
-      required this.title,
-      this.helpChild,
-      this.helpText,
-      super.key});
+  const HelpWrapper({
+    required this.child,
+    required this.tooltip,
+    required this.title,
+    this.helpChild,
+    this.helpText,
+    super.key,
+  });
 
   final Widget child;
   final Widget? helpChild;
@@ -96,20 +93,26 @@ class HelpWrapper extends StatelessWidget {
   final String title;
 
   @override
-  Widget build(BuildContext context) => Row(children: [
-        Expanded(child: child),
-        if (helpChild != null)
-          HelpButton(tooltip: tooltip, dialogTitle: title, child: helpChild)
-        else
-          HelpButton.text(
-            tooltip: tooltip,
-            dialogTitle: title,
-            helpText: helpText,
-          )
-      ]);
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(child: child),
+      if (helpChild != null)
+        HelpButton(tooltip: tooltip, dialogTitle: title, child: helpChild)
+      else
+        HelpButton.text(
+          tooltip: tooltip,
+          dialogTitle: title,
+          helpText: helpText,
+        ),
+    ],
+  );
 }
 
 extension HelpWrapperEx on Widget {
   Widget help(String title, String helpText) => HelpWrapper(
-      tooltip: title, title: title, helpText: helpText, child: this);
+    tooltip: title,
+    title: title,
+    helpText: helpText,
+    child: this,
+  );
 }

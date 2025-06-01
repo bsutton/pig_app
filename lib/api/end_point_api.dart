@@ -12,9 +12,11 @@ class EndPointApi {
   /// POST /end_point/list
   Future<EndPointListData> listEndPoints() async {
     final uri = Uri.parse('$serverUrl/end_point/list');
-    final response = await http.post(uri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({})); // no body needed
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({}),
+    ); // no body needed
 
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
@@ -72,13 +74,13 @@ class EndPointApi {
     final uri = Uri.parse('$serverUrl/end_point/save');
 
     final body = EndPointInfo(
-            id: id,
-            name: name,
-            activationType: activationType,
-            pinAssignment: pinAssignment,
-            endPointType: endPointType,
-            isOn: false)
-        .toJson();
+      id: id,
+      name: name,
+      activationType: activationType,
+      pinAssignment: pinAssignment,
+      endPointType: endPointType,
+      isOn: false,
+    ).toJson();
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
@@ -91,16 +93,15 @@ class EndPointApi {
 
   /// Toggle an endpoint on or off
   /// POST /end_point/toggle
-  Future<void> toggleEndPoint(
-      {required int endPointId, required bool turnOn}) async {
+  Future<void> toggleEndPoint({
+    required int endPointId,
+    required bool turnOn,
+  }) async {
     final uri = Uri.parse('$serverUrl/end_point/toggle');
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'endPointId': endPointId,
-        'turnOn': turnOn,
-      }),
+      body: jsonEncode({'endPointId': endPointId, 'turnOn': turnOn}),
     );
     if (response.statusCode != 200) {
       throw NetworkException(response, action: 'Toggling EndPoint');
@@ -111,9 +112,11 @@ class EndPointApi {
   /// POST /end_point/delete
   Future<void> deleteEndPoint(int endPointId) async {
     final uri = Uri.parse('$serverUrl/end_point/delete');
-    final response = await http.post(uri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'endPointId': endPointId}));
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'endPointId': endPointId}),
+    );
     if (response.statusCode != 200) {
       throw NetworkException(response, action: 'Deleting EndPoint');
     }
@@ -151,10 +154,7 @@ class WeatherStationInfo {
   WeatherStationInfo({required this.id, required this.name});
 
   factory WeatherStationInfo.fromJson(Map<String, dynamic> json) =>
-      WeatherStationInfo(
-        id: json['id'] as int,
-        name: json['name'] as String,
-      );
+      WeatherStationInfo(id: json['id'] as int, name: json['name'] as String);
 
   final int id;
   final String name;

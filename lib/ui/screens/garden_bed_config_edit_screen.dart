@@ -91,120 +91,119 @@ class _GardenBedEditScreenState extends DeferredState<GardenBedEditScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => DeferredBuilder(this,
-      builder: (context) => Scaffold(
-            appBar: AppBar(
-              title: Text(isNew ? 'Add Garden Bed' : 'Edit Garden Bed'),
-              actions: [
-                if (bed.allowDelete)
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: _delete,
-                  ),
+  Widget build(BuildContext context) => DeferredBuilder(
+    this,
+    builder: (context) => Scaffold(
+      appBar: AppBar(
+        title: Text(isNew ? 'Add Garden Bed' : 'Edit Garden Bed'),
+        actions: [
+          if (bed.allowDelete)
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: _delete,
+            ),
+        ],
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Garden Bed Name
+            TextFormField(
+              initialValue: bed.name,
+              decoration: const InputDecoration(labelText: 'Garden Bed Name'),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter a name';
+                }
+                return null;
+              },
+              onSaved: (value) {
+                bed.name = value!.trim();
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Garden Bed Description
+            TextFormField(
+              initialValue: bed.description,
+              decoration: const InputDecoration(
+                labelText: 'Garden Bed Description',
+              ),
+              maxLines: 2,
+              onSaved: (value) {
+                bed.description = value?.trim();
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Valve
+            _buildValveDropdown(),
+
+            const SizedBox(height: 16),
+
+            // Master Valve
+            _buildMasterValveDropdown(),
+
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: _save,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  child: const Text('Save'),
+                ),
               ],
             ),
-            body: Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  // Garden Bed Name
-                  TextFormField(
-                    initialValue: bed.name,
-                    decoration:
-                        const InputDecoration(labelText: 'Garden Bed Name'),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter a name';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      bed.name = value!.trim();
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Garden Bed Description
-                  TextFormField(
-                    initialValue: bed.description,
-                    decoration: const InputDecoration(
-                        labelText: 'Garden Bed Description'),
-                    maxLines: 2,
-                    onSaved: (value) {
-                      bed.description = value?.trim();
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Valve
-                  _buildValveDropdown(),
-
-                  const SizedBox(height: 16),
-
-                  // Master Valve
-                  _buildMasterValveDropdown(),
-
-                  const SizedBox(height: 32),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('Cancel'),
-                      ),
-                      const Spacer(),
-                      ElevatedButton(
-                        onPressed: _save,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                        ),
-                        child: const Text('Save'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ));
+          ],
+        ),
+      ),
+    ),
+  );
 
   Widget _buildValveDropdown() => DropdownButtonFormField<EndPointInfo>(
-        decoration: const InputDecoration(labelText: 'Valve'),
-        value:
-            bedData.valves.firstWhereOrNull((value) => value.id == bed.valveId),
-        items: [
-          for (final val in bedData.valves)
-            DropdownMenuItem<EndPointInfo>(
-              value: val,
-              child: Text(
-                  '${val.name} (GPIO Pin ${val.pinAssignment.gpioPin} (Header: ${val.pinAssignment.headerPin}))'),
-            )
-        ],
-        onChanged: (value) {
-          setState(() {
-            bed.valveId = value?.id;
-          });
-        },
-        validator: (value) => (value == null) ? 'Please select a valve' : null,
-      );
+    decoration: const InputDecoration(labelText: 'Valve'),
+    value: bedData.valves.firstWhereOrNull((value) => value.id == bed.valveId),
+    items: [
+      for (final val in bedData.valves)
+        DropdownMenuItem<EndPointInfo>(
+          value: val,
+          child: Text(
+            '${val.name} (GPIO Pin ${val.pinAssignment.gpioPin} (Header: ${val.pinAssignment.headerPin}))',
+          ),
+        ),
+    ],
+    onChanged: (value) {
+      setState(() {
+        bed.valveId = value?.id;
+      });
+    },
+    validator: (value) => (value == null) ? 'Please select a valve' : null,
+  );
 
   Widget _buildMasterValveDropdown() => DropdownButtonFormField<int>(
-        decoration: const InputDecoration(labelText: 'Master Valve (optional)'),
-        value: bed.masterValveId,
-        items: [
-          const DropdownMenuItem<int>(
-            child: Text('None'),
+    decoration: const InputDecoration(labelText: 'Master Valve (optional)'),
+    value: bed.masterValveId,
+    items: [
+      const DropdownMenuItem<int>(child: Text('None')),
+      for (final val in bedData.masterValves)
+        DropdownMenuItem<int>(
+          value: val.id,
+          child: Text(
+            '${val.name} (GPIO Pin ${val.pinAssignment.gpioPin} (Header: ${val.pinAssignment.headerPin}))',
           ),
-          for (final val in bedData.masterValves)
-            DropdownMenuItem<int>(
-              value: val.id,
-              child: Text(
-                  '${val.name} (GPIO Pin ${val.pinAssignment.gpioPin} (Header: ${val.pinAssignment.headerPin}))'),
-            )
-        ],
-        onChanged: (value) {
-          setState(() {
-            bed.masterValveId = value;
-          });
-        },
-      );
+        ),
+    ],
+    onChanged: (value) {
+      setState(() {
+        bed.masterValveId = value;
+      });
+    },
+  );
 }

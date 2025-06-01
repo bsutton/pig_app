@@ -9,13 +9,13 @@ class LightingInfo {
   });
 
   factory LightingInfo.fromJson(Map<String, dynamic> json) => LightingInfo(
-        id: json['id'] as int,
-        name: json['name'] as String,
-        isOn: json['isOn'] as bool,
-        lastOnDate: json['lastOnDate'] as String?,
-        timerRunning: json['timerRunning'] as bool,
-        timerRemainingSeconds: json['timerRemainingSeconds'] as int,
-      );
+    id: json['id'] as int,
+    name: json['name'] as String,
+    isOn: json['isOn'] as bool,
+    lastOnDate: json['lastOnDate'] as String?,
+    timerRunning: json['timerRunning'] as bool,
+    timerRemainingSeconds: json['timerRemainingSeconds'] as int,
+  );
   final int id;
   final String name;
   final bool isOn;

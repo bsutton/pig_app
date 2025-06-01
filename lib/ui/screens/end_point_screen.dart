@@ -85,10 +85,11 @@ class _EndPointConfigurationScreenState
 
   Future<void> _editEndPoint(EndPointInfo info) async {
     final result = await Navigator.push(
-        context,
-        MaterialPageRoute<bool>(
-          builder: (ctx) => EndPointEditScreen(endPointId: info.id),
-        ));
+      context,
+      MaterialPageRoute<bool>(
+        builder: (ctx) => EndPointEditScreen(endPointId: info.id),
+      ),
+    );
     if (result ?? false) {
       await _refresh();
     }
@@ -96,10 +97,9 @@ class _EndPointConfigurationScreenState
 
   Future<void> _addEndPoint() async {
     await Navigator.push(
-        context,
-        MaterialPageRoute<bool>(
-          builder: (ctx) => const EndPointEditScreen(),
-        ));
+      context,
+      MaterialPageRoute<bool>(builder: (ctx) => const EndPointEditScreen()),
+    );
     await _refresh();
   }
 
@@ -119,61 +119,62 @@ class _EndPointConfigurationScreenState
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('End Points'),
-        ),
-        body: FutureBuilderEx(
-          future: _listFuture,
-          builder: (context, data) => Column(
-            children: [
-              _buildWeatherSelectors(data!),
-              Expanded(child: _buildEndpointList(data)),
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: ElevatedButton.icon(
-                    onPressed: _addEndPoint,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add'),
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-
-  Widget _buildWeatherSelectors(EndPointListData data) => Column(
+    appBar: AppBar(title: const Text('End Points')),
+    body: FutureBuilderEx(
+      future: _listFuture,
+      builder: (context, data) => Column(
         children: [
-          // Weather bureau combo
-          DropdownButtonFormField<WeatherBureauInfo>(
-            decoration: const InputDecoration(labelText: 'Weather Bureau'),
-            value: selectedBureau,
-            items: data.bureaus
-                .map((b) => DropdownMenuItem<WeatherBureauInfo>(
-                      value: b,
-                      child: Text(b.countryName),
-                    ))
-                .toList(),
-            onChanged: _onBureauSelected,
-          ),
-          // Weather station combo
-          DropdownButtonFormField<WeatherStationInfo>(
-            decoration: const InputDecoration(labelText: 'Weather Station'),
-            value: selectedStation,
-            items: data.stations
-                .map((s) => DropdownMenuItem<WeatherStationInfo>(
-                      value: s,
-                      child: Text(s.name),
-                    ))
-                .toList(),
-            onChanged: _onStationSelected,
+          _buildWeatherSelectors(data!),
+          Expanded(child: _buildEndpointList(data)),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Align(
+              alignment: Alignment.bottomRight,
+              child: ElevatedButton.icon(
+                onPressed: _addEndPoint,
+                icon: const Icon(Icons.add),
+                label: const Text('Add'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              ),
+            ),
           ),
         ],
-      );
+      ),
+    ),
+  );
+
+  Widget _buildWeatherSelectors(EndPointListData data) => Column(
+    children: [
+      // Weather bureau combo
+      DropdownButtonFormField<WeatherBureauInfo>(
+        decoration: const InputDecoration(labelText: 'Weather Bureau'),
+        value: selectedBureau,
+        items: data.bureaus
+            .map(
+              (b) => DropdownMenuItem<WeatherBureauInfo>(
+                value: b,
+                child: Text(b.countryName),
+              ),
+            )
+            .toList(),
+        onChanged: _onBureauSelected,
+      ),
+      // Weather station combo
+      DropdownButtonFormField<WeatherStationInfo>(
+        decoration: const InputDecoration(labelText: 'Weather Station'),
+        value: selectedStation,
+        items: data.stations
+            .map(
+              (s) => DropdownMenuItem<WeatherStationInfo>(
+                value: s,
+                child: Text(s.name),
+              ),
+            )
+            .toList(),
+        onChanged: _onStationSelected,
+      ),
+    ],
+  );
 
   Widget _buildEndpointList(EndPointListData data) {
     if (data.endPoints.isEmpty) {

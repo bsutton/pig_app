@@ -38,9 +38,10 @@ class _LightingViewScreenState extends DeferredState<LightingViewScreen> {
 
     try {
       await api.toggle(
-          light: light,
-          duration: Duration(seconds: durationSeconds),
-          turnOn: turnOn);
+        light: light,
+        duration: Duration(seconds: durationSeconds),
+        turnOn: turnOn,
+      );
       // We can optionally parse the response for updated info
       // Then re-fetch the entire lighting list
       lights = await api.fetchLightingList();
@@ -87,42 +88,41 @@ class _LightingViewScreenState extends DeferredState<LightingViewScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Lighting'),
-        ),
-        body: DeferredBuilder(
-          this,
-          builder: (context) {
-            if (lights.isEmpty) {
-              return const Center(child: Text('No lighting found.'));
-            }
-            return ListView.builder(
-              itemCount: lights.length,
-              itemBuilder: (context, index) {
-                final light = lights[index];
-                return Card(
-                  margin: const EdgeInsets.all(8),
-                  child: ListTile(
-                    title: Text(light.name),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (light.lastOnDate != null)
-                          Text('Last: ${light.lastOnDate}'),
-                        if (light.timerRunning)
-                          Text(
-                              'Timer remaining: ${light.timerRemainingSeconds} seconds'),
-                      ],
-                    ),
-                    trailing: Switch(
-                      value: light.isOn,
-                      onChanged: (value) async => _toggleLight(light, value),
-                    ),
-                  ),
-                );
-              },
+    appBar: AppBar(title: const Text('Lighting')),
+    body: DeferredBuilder(
+      this,
+      builder: (context) {
+        if (lights.isEmpty) {
+          return const Center(child: Text('No lighting found.'));
+        }
+        return ListView.builder(
+          itemCount: lights.length,
+          itemBuilder: (context, index) {
+            final light = lights[index];
+            return Card(
+              margin: const EdgeInsets.all(8),
+              child: ListTile(
+                title: Text(light.name),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (light.lastOnDate != null)
+                      Text('Last: ${light.lastOnDate}'),
+                    if (light.timerRunning)
+                      Text(
+                        'Timer remaining: ${light.timerRemainingSeconds} seconds',
+                      ),
+                  ],
+                ),
+                trailing: Switch(
+                  value: light.isOn,
+                  onChanged: (value) async => _toggleLight(light, value),
+                ),
+              ),
             );
           },
-        ),
-      );
+        );
+      },
+    ),
+  );
 }

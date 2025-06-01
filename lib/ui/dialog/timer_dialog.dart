@@ -16,50 +16,48 @@ class TimerDialog extends StatelessWidget {
     BuildContext context, {
     required String title,
     required void Function(Duration) onTimerSelected,
-  }) =>
-      showDialog<Duration?>(
-        context: context,
-        barrierDismissible: false, // Prevent dismissal by tapping outside
-        builder: (ctx) =>
-            TimerDialog(title: title, onTimerSelected: onTimerSelected),
-      );
+  }) => showDialog<Duration?>(
+    context: context,
+    barrierDismissible: false, // Prevent dismissal by tapping outside
+    builder: (ctx) =>
+        TimerDialog(title: title, onTimerSelected: onTimerSelected),
+  );
 
   @override
   Widget build(BuildContext context) => Dialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Title
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-
-              // Timer Options
-              ..._buildTimerButtons(context),
-
-              const SizedBox(height: 16),
-
-              // Cancel Button
-              Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                  onPressed: () =>
-                      Navigator.of(context).pop(), // Close the dialog
-                  child: const Text('Cancel'),
-                ),
-              ),
-            ],
+    insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Title
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge,
+            textAlign: TextAlign.center,
           ),
-        ),
-      );
+          const SizedBox(height: 16),
+
+          // Timer Options
+          ..._buildTimerButtons(context),
+
+          const SizedBox(height: 16),
+
+          // Cancel Button
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(), // Close the dialog
+              child: const Text('Cancel'),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 
   List<Widget> _buildTimerButtons(BuildContext context) {
     const timerOptions = {
@@ -74,15 +72,17 @@ class TimerDialog extends StatelessWidget {
     };
 
     return timerOptions.entries
-        .map((entry) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(entry.value); // Close the dialog
-                },
-                child: Text(entry.key),
-              ),
-            ))
+        .map(
+          (entry) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(entry.value); // Close the dialog
+              },
+              child: Text(entry.key),
+            ),
+          ),
+        )
         .toList();
   }
 }

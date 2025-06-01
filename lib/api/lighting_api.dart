@@ -9,9 +9,11 @@ import 'settings.dart';
 class LightingApi {
   Future<List<LightingInfo>> fetchLightingList() async {
     final url = Uri.parse('$serverUrl/lighting/list');
-    final response = await http.post(url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({})); // No request body needed in our example
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({}),
+    ); // No request body needed in our example
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -24,10 +26,11 @@ class LightingApi {
     }
   }
 
-  Future<void> toggle(
-      {required Duration duration,
-      required LightingInfo light,
-      required bool turnOn}) async {
+  Future<void> toggle({
+    required Duration duration,
+    required LightingInfo light,
+    required bool turnOn,
+  }) async {
     final url = Uri.parse('$serverUrl/lighting/toggle');
     final response = await http.post(
       url,
@@ -38,7 +41,6 @@ class LightingApi {
         'durationSeconds': duration.inSeconds,
       }),
     );
-
 
     if (response.statusCode != 200) {
       throw NetworkException(response);

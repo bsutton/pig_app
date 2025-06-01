@@ -14,7 +14,7 @@ class LocalDate {
   /// This is the same as calling [LocalDate()].
   /// required by json.
   LocalDate(int year, [int month = 1, int day = 1])
-      : date = DateTime(year, month, day);
+    : date = DateTime(year, month, day);
 
   /// Creates a [LocalDate] with todays date.
   LocalDate.today() : date = stripTime(DateTime.now());
@@ -53,8 +53,14 @@ class LocalDate {
   /// If [time] is null then the time component
   /// is set to midnight at the start of this
   /// [LocalDate].
-  DateTime toDateTime({LocalTime? time}) => DateTime(date.year, date.month,
-      date.day, time?.hour ?? 0, time?.minute ?? 0, time?.second ?? 0);
+  DateTime toDateTime({LocalTime? time}) => DateTime(
+    date.year,
+    date.month,
+    date.day,
+    time?.hour ?? 0,
+    time?.minute ?? 0,
+    time?.second ?? 0,
+  );
 
   static DateTime stripTime(DateTime dateTime) =>
       DateTime(dateTime.year, dateTime.month, dateTime.day);
@@ -96,7 +102,6 @@ class LocalDate {
   String toIso8601String() => date.toIso8601String();
 
   Duration difference(LocalDate other) => date.difference(other.toDateTime());
-
 
   @override
   String toString() => formatLocalDate(this);

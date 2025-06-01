@@ -35,8 +35,9 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
 
   @override
   Future<void> asyncInitState() async {
-    final editData =
-        await api.fetchEndPointEditData(endPointId: widget.endPointId);
+    final editData = await api.fetchEndPointEditData(
+      endPointId: widget.endPointId,
+    );
     if (editData.endPoint != null) {
       endPointId = editData.endPoint!.id;
       name = editData.endPoint!.name;
@@ -64,11 +65,12 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
     }
     try {
       await api.saveEndPoint(
-          id: endPointId,
-          name: name,
-          pinAssignment: pinAssignment!,
-          activationType: activationType!,
-          endPointType: endPointType!);
+        id: endPointId,
+        name: name,
+        pinAssignment: pinAssignment!,
+        activationType: activationType!,
+        endPointType: endPointType!,
+      );
       if (mounted) {
         Navigator.of(context).pop(true);
       }
@@ -79,107 +81,102 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text(isNew ? 'Add EndPoint' : 'Edit EndPoint'),
-        ),
-        body: DeferredBuilder(
-          this,
-          builder: (ctx) => Form(
-            key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
+    appBar: AppBar(title: Text(isNew ? 'Add EndPoint' : 'Edit EndPoint')),
+    body: DeferredBuilder(
+      this,
+      builder: (ctx) => Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            TextFormField(
+              initialValue: name,
+              decoration: const InputDecoration(labelText: 'EndPoint Name'),
+              validator: (value) => (value == null || value.isEmpty)
+                  ? 'Please enter a name'
+                  : null,
+              onSaved: (value) => name = value!.trim(),
+            ),
+            const SizedBox(height: 16),
+            // Pin # dropdown
+            DropdownButtonFormField<GPIOPinAssignment>(
+              decoration: const InputDecoration(labelText: 'Pin Number'),
+              value: pinAssignment,
+              items: [
+                for (final pinAssignment in availablePins)
+                  DropdownMenuItem<GPIOPinAssignment>(
+                    value: pinAssignment,
+                    child: Text(
+                      'Pin ${pinAssignment.gpioPin} (header: ${pinAssignment.headerPin})',
+                    ),
+                  ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  pinAssignment = value;
+                });
+              },
+              validator: (value) =>
+                  (value == null) ? 'Please select a pin' : null,
+            ),
+            const SizedBox(height: 16),
+            // Activation Type
+            DropdownButtonFormField<PinActivationType>(
+              decoration: const InputDecoration(labelText: 'Activation Type'),
+              value: activationType,
+              items: [
+                for (final type in activationTypes)
+                  DropdownMenuItem<PinActivationType>(
+                    value: type,
+                    child: Text(type.name),
+                  ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  activationType = value;
+                });
+              },
+              validator: (value) =>
+                  (value == null) ? 'Please select an activation type' : null,
+            ),
+            const SizedBox(height: 16),
+            // Activation Type
+            DropdownButtonFormField<EndPointType>(
+              decoration: const InputDecoration(labelText: 'EndPoint Type'),
+              value: endPointType,
+              items: [
+                for (final type in EndPointType.values)
+                  DropdownMenuItem<EndPointType>(
+                    value: type,
+                    child: Text(type.displayName),
+                  ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  endPointType = value;
+                });
+              },
+              validator: (value) =>
+                  (value == null) ? 'Please select an End Point type' : null,
+            ),
+            const SizedBox(height: 32),
+            Row(
               children: [
-                TextFormField(
-                  initialValue: name,
-                  decoration: const InputDecoration(labelText: 'EndPoint Name'),
-                  validator: (value) => (value == null || value.isEmpty)
-                      ? 'Please enter a name'
-                      : null,
-                  onSaved: (value) => name = value!.trim(),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
                 ),
-                const SizedBox(height: 16),
-                // Pin # dropdown
-                DropdownButtonFormField<GPIOPinAssignment>(
-                  decoration: const InputDecoration(labelText: 'Pin Number'),
-                  value: pinAssignment,
-                  items: [
-                    for (final pinAssignment in availablePins)
-                      DropdownMenuItem<GPIOPinAssignment>(
-                        value: pinAssignment,
-                        child: Text(
-                            'Pin ${pinAssignment.gpioPin} (header: ${pinAssignment.headerPin})'),
-                      )
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      pinAssignment = value;
-                    });
-                  },
-                  validator: (value) =>
-                      (value == null) ? 'Please select a pin' : null,
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: _save,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  child: const Text('Save'),
                 ),
-                const SizedBox(height: 16),
-                // Activation Type
-                DropdownButtonFormField<PinActivationType>(
-                  decoration:
-                      const InputDecoration(labelText: 'Activation Type'),
-                  value: activationType,
-                  items: [
-                    for (final type in activationTypes)
-                      DropdownMenuItem<PinActivationType>(
-                        value: type,
-                        child: Text(type.name),
-                      )
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      activationType = value;
-                    });
-                  },
-                  validator: (value) => (value == null)
-                      ? 'Please select an activation type'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                // Activation Type
-                DropdownButtonFormField<EndPointType>(
-                  decoration: const InputDecoration(labelText: 'EndPoint Type'),
-                  value: endPointType,
-                  items: [
-                    for (final type in EndPointType.values)
-                      DropdownMenuItem<EndPointType>(
-                        value: type,
-                        child: Text(type.displayName),
-                      )
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      endPointType = value;
-                    });
-                  },
-                  validator: (value) => (value == null)
-                      ? 'Please select an End Point type'
-                      : null,
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Cancel'),
-                    ),
-                    const Spacer(),
-                    ElevatedButton(
-                      onPressed: _save,
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue),
-                      child: const Text('Save'),
-                    ),
-                  ],
-                )
               ],
             ),
-          ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
