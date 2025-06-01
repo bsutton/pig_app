@@ -26,6 +26,9 @@ void main() {
           '-alias $keyStoreAliasForDebug'
       .run;
 
-  print(orange(
-      'You need to check that the pig_server/www_root/.well-known/assetlinks.json file has both of the SHA256 signatures'));
+  print(
+    orange(
+      'You need to check that the pig_server/www_root/.well-known/assetlinks.json file has both of the SHA256 signatures',
+    ),
+  );
 }

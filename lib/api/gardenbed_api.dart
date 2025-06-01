@@ -11,9 +11,11 @@ import 'settings.dart';
 class GardenBedApi {
   Future<GardenBedListData> fetchGardenBeds() async {
     final uri = Uri.parse('$serverUrl/garden_bed/list');
-    final response = await http.post(uri, body: jsonEncode({}), headers: {
-      'Content-Type': 'application/json',
-    });
+    final response = await http.post(
+      uri,
+      body: jsonEncode({}),
+      headers: {'Content-Type': 'application/json'},
+    );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       return GardenBedListData.fromJson(data);
@@ -35,15 +37,18 @@ class GardenBedApi {
 
     if (response.statusCode == 200) {
       final bedData = GardenBedListData.fromJson(
-          jsonDecode(response.body) as Map<String, dynamic>);
+        jsonDecode(response.body) as Map<String, dynamic>,
+      );
 
       return bedData;
     }
     throw NetworkException(response, action: 'Loading Bed data for $bedId');
   }
 
-  Future<void> toggleBed(
-      {required GardenBedData bed, required bool turnOn}) async {
+  Future<void> toggleBed({
+    required GardenBedData bed,
+    required bool turnOn,
+  }) async {
     final uri = Uri.parse('$serverUrl/garden_bed/toggle');
     final response = await http.post(
       uri,
@@ -57,9 +62,11 @@ class GardenBedApi {
 
   Future<void> deleteBed(int bedId) async {
     final uri = Uri.parse('$serverUrl/garden_bed/delete');
-    final response = await http.post(uri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'bedId': bedId}));
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'bedId': bedId}),
+    );
 
     if (response.statusCode != 200) {
       throw NetworkException(response);
@@ -80,18 +87,23 @@ class GardenBedApi {
   }
 
   Future<void> startTimer(
-      int bedId, Duration duration, String description) async {
+    int bedId,
+    Duration duration,
+    String description,
+  ) async {
     final url = Uri.parse('$serverUrl/garden_bed/start_timer');
     final http.Response response;
     try {
       print('trying');
-      response = await http.post(url,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'bedId': bedId,
-            'durationSeconds': duration.inSeconds,
-            'description': description
-          }));
+      response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'bedId': bedId,
+          'durationSeconds': duration.inSeconds,
+          'description': description,
+        }),
+      );
       print('returned');
       if (response.statusCode != 200) {
         throw NetworkException(response);
@@ -103,9 +115,11 @@ class GardenBedApi {
 
   Future<void> stopTimer(int bedId) async {
     final url = Uri.parse('$serverUrl/garden_bed/stop_timer');
-    final response = await http.post(url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'bedId': bedId}));
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'bedId': bedId}),
+    );
     if (response.statusCode != 200) {
       throw NetworkException(response);
     }

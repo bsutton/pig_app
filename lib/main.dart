@@ -35,92 +35,93 @@ Future<void> main(List<String> args) async {
   final blockingUIKey = GlobalKey();
 
   runApp(
-      // Provider<Client>(
-      //       // Reusing the same `Client` may:
-      //       // - reduce memory usage
-      //       // - allow caching of fetched URLs
-      //       // - allow connections to be persisted
-      //       create: (_) => http_factory.httpClient(),
-      //       dispose: (_, client) => client.close(),
-      //       child:
-      // Wrap the entire app with a Container and DecoratedBox
-      ToastificationWrapper(
-    child: MaterialApp.router(
-      theme: theme,
-      routerConfig: router,
-      builder: (context, child) => Stack(
-        children: [
-          DecoratedBox(
-            position: DecorationPosition.foreground,
-            decoration: BoxDecoration(
-                border:
-                    Border.all(color: isMobile ? Colors.black : Colors.white)),
-            child: BlockingUIRunner(
-              key: blockingUIKey,
-              slowAction: () => _initialise(context),
-              label: 'Upgrading your database.',
-              builder: (context) => child ?? const SizedBox.shrink(),
+    // Provider<Client>(
+    //       // Reusing the same `Client` may:
+    //       // - reduce memory usage
+    //       // - allow caching of fetched URLs
+    //       // - allow connections to be persisted
+    //       create: (_) => http_factory.httpClient(),
+    //       dispose: (_, client) => client.close(),
+    //       child:
+    // Wrap the entire app with a Container and DecoratedBox
+    ToastificationWrapper(
+      child: MaterialApp.router(
+        theme: theme,
+        routerConfig: router,
+        builder: (context, child) => Stack(
+          children: [
+            DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: isMobile ? Colors.black : Colors.white,
+                ),
+              ),
+              child: BlockingUIRunner(
+                key: blockingUIKey,
+                slowAction: () => _initialise(context),
+                label: 'Upgrading your database.',
+                builder: (context) => child ?? const SizedBox.shrink(),
+              ),
             ),
-          ),
 
-          // The overlay
-          const BlockingOverlay(),
-        ],
+            // The overlay
+            const BlockingOverlay(),
+          ],
+        ),
       ),
     ),
-  )
-      // )
-      );
+    // )
+  );
 }
 
 ThemeData get theme => ThemeData(
-      primaryColor: Colors.deepPurple,
-      brightness: Brightness.dark, // Overall theme brightness
-      scaffoldBackgroundColor: HMBColors.defaultBackground,
-      buttonTheme: const ButtonThemeData(
-        buttonColor: Colors.deepPurple, // Button background color
-        textTheme: ButtonTextTheme.primary, // Ensures contrast for text
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.deepPurple, // Background for elevated buttons
-          foregroundColor: Colors.white, // Text color for elevated buttons
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor:
-              Colors.deepPurpleAccent, // Text color for text buttons
-          textStyle: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor:
-              Colors.deepPurpleAccent, // Text color for outlined buttons
-          side:
-              const BorderSide(color: Colors.deepPurpleAccent), // Border color
-        ),
-      ),
-      snackBarTheme: SnackBarThemeData(
-        actionTextColor: HMBColors.accent,
-        backgroundColor: Colors.grey.shade800,
-        contentTextStyle: const TextStyle(color: Colors.white),
-      ),
-      timePickerTheme: TimePickerThemeData(
-        confirmButtonStyle: TextButton.styleFrom(foregroundColor: Colors.white),
-        cancelButtonStyle: TextButton.styleFrom(foregroundColor: Colors.white),
-      ),
-      dialogTheme: const DialogThemeData(
-        titleTextStyle: TextStyle(
-            color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-        contentTextStyle: TextStyle(color: Colors.white),
-      ),
-      colorScheme: ColorScheme.fromSwatch(
+  primaryColor: Colors.deepPurple,
+  brightness: Brightness.dark, // Overall theme brightness
+  scaffoldBackgroundColor: HMBColors.defaultBackground,
+  buttonTheme: const ButtonThemeData(
+    buttonColor: Colors.deepPurple, // Button background color
+    textTheme: ButtonTextTheme.primary, // Ensures contrast for text
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.deepPurple, // Background for elevated buttons
+      foregroundColor: Colors.white, // Text color for elevated buttons
+      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    ),
+  ),
+  textButtonTheme: TextButtonThemeData(
+    style: TextButton.styleFrom(
+      foregroundColor: Colors.deepPurpleAccent, // Text color for text buttons
+      textStyle: const TextStyle(fontWeight: FontWeight.bold),
+    ),
+  ),
+  outlinedButtonTheme: OutlinedButtonThemeData(
+    style: OutlinedButton.styleFrom(
+      foregroundColor:
+          Colors.deepPurpleAccent, // Text color for outlined buttons
+      side: const BorderSide(color: Colors.deepPurpleAccent), // Border color
+    ),
+  ),
+  snackBarTheme: SnackBarThemeData(
+    actionTextColor: HMBColors.accent,
+    backgroundColor: Colors.grey.shade800,
+    contentTextStyle: const TextStyle(color: Colors.white),
+  ),
+  timePickerTheme: TimePickerThemeData(
+    confirmButtonStyle: TextButton.styleFrom(foregroundColor: Colors.white),
+    cancelButtonStyle: TextButton.styleFrom(foregroundColor: Colors.white),
+  ),
+  dialogTheme: const DialogThemeData(
+    titleTextStyle: TextStyle(
+      color: Colors.white,
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+    ),
+    contentTextStyle: TextStyle(color: Colors.white),
+  ),
+  colorScheme:
+      ColorScheme.fromSwatch(
         primarySwatch: Colors.deepPurple,
         brightness: Brightness.dark,
       ).copyWith(
@@ -128,8 +129,8 @@ ThemeData get theme => ThemeData(
         surface: HMBColors.defaultBackground,
         onPrimary: Colors.white, // Ensures text contrast on primary
       ),
-      visualDensity: VisualDensity.adaptivePlatformDensity,
-    );
+  visualDensity: VisualDensity.adaptivePlatformDensity,
+);
 
 var initialised = false;
 Future<void> _initialise(BuildContext context) async {
@@ -144,12 +145,13 @@ Future<void> _initialise(BuildContext context) async {
 
       if (context.mounted) {
         await showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => FullScreenDialog(
-                  content: ErrorScreen(errorMessage: e.toString()),
-                  title: 'Database Error',
-                ));
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => FullScreenDialog(
+            content: ErrorScreen(errorMessage: e.toString()),
+            title: 'Database Error',
+          ),
+        );
       }
       rethrow;
     }

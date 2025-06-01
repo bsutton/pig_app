@@ -9,7 +9,6 @@ import 'keystore.dart';
 /// genrates the keys used when creating apk bundles.
 void main() {
   'apt install --assume-yes '
-
           /// The flutter package flutter_secure_storage_linux needs these
           /// lib deps.
           'libsecret-1-dev libsecret-tools '
@@ -32,8 +31,10 @@ void main() {
 /// sign the app and for deep links to work.
 void _createReleaseKeyStore() {
   if (!exists(keyStorePath)) {
-    print(red('''
-creating signing key - store this VERY SAFELEY - under "Pigation keystore"'''));
+    print(
+      red('''
+creating signing key - store this VERY SAFELEY - under "Pigation keystore"'''),
+    );
     var bad = false;
     String password;
     String confirmed;
@@ -57,8 +58,10 @@ creating signing key - store this VERY SAFELEY - under "Pigation keystore"'''));
             '-validity 10000 '
         .start(terminal: true);
 
-    print(orange('''
-Your keystore has been created $keyStorePath. Backup it up to lastpass'''));
+    print(
+      orange('''
+Your keystore has been created $keyStorePath. Backup it up to lastpass'''),
+    );
 
     join(projectRoot, 'android', 'key.properties').write('''
 storePassword=$password
@@ -74,8 +77,12 @@ storeFile=$keyStorePath
 /// Key store to generate sha finger print for deep links when debugging.
 void _createDebugKeyStore() {
   if (!exists(keyStorePathForDebug)) {
-    print(red('''
-creating debug signing key - store this VERY SAFELEY - under "Pigation keystore"'''));
+    print(
+      red(
+        '''
+creating debug signing key - store this VERY SAFELEY - under "Pigation keystore"''',
+      ),
+    );
     var bad = false;
     String password;
     String confirmed;
@@ -99,8 +106,12 @@ creating debug signing key - store this VERY SAFELEY - under "Pigation keystore"
             '-validity 10000 '
         .start(terminal: true);
 
-    print(orange('''
-Your keystore has been created $keyStorePathForDebug. Backup it up to lastpass'''));
+    print(
+      orange(
+        '''
+Your keystore has been created $keyStorePathForDebug. Backup it up to lastpass''',
+      ),
+    );
 
     join(projectRoot, 'android', 'key.properties').append('''
 storePassword.debug=$password
