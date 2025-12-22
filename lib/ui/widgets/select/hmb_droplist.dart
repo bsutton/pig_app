@@ -43,6 +43,24 @@ class HMBDroplist<T> extends FormField<T> {
 }
 
 class _HMBDroplist<T> extends StatefulWidget {
+  final FormFieldState<T> state;
+
+  final Future<T?> Function() selectedItemFuture;
+
+  final Future<List<T>> Function(String? filter) items;
+
+  final String Function(T) format;
+
+  final void Function(T?) onChanged;
+
+  final String title;
+
+  final Color backgroundColor;
+
+  final bool required;
+
+  final Future<void> Function()? onAdd;
+
   const _HMBDroplist({
     required this.state,
     required this.selectedItemFuture,
@@ -55,16 +73,6 @@ class _HMBDroplist<T> extends StatefulWidget {
     this.onAdd, // Optional "Add" callback
     super.key,
   });
-
-  final FormFieldState<T> state;
-  final Future<T?> Function() selectedItemFuture;
-  final Future<List<T>> Function(String? filter) items;
-  final String Function(T) format;
-  final void Function(T?) onChanged;
-  final String title;
-  final Color backgroundColor;
-  final bool required;
-  final Future<void> Function()? onAdd;
 
   @override
   _HMBDroplistState<T> createState() => _HMBDroplistState<T>();

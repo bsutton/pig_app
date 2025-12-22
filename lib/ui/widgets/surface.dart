@@ -29,6 +29,14 @@ enum SurfaceElevation {
 /// illusion of an elevation for a dark theme.
 ///
 class Surface extends StatelessWidget {
+  final Widget child;
+
+  final SurfaceElevation elevation;
+
+  final EdgeInsetsGeometry? padding;
+
+  final EdgeInsetsGeometry? margin;
+
   const Surface({
     required this.child,
     this.elevation = SurfaceElevation.e4,
@@ -36,10 +44,7 @@ class Surface extends StatelessWidget {
     this.margin = EdgeInsets.zero,
     super.key,
   });
-  final Widget child;
-  final SurfaceElevation elevation;
-  final EdgeInsetsGeometry? padding;
-  final EdgeInsetsGeometry? margin;
+
   @override
   Widget build(BuildContext context) => Container(
     padding: margin,
@@ -56,6 +61,18 @@ class Surface extends StatelessWidget {
 }
 
 class SurfaceCard extends StatelessWidget {
+  final String title;
+
+  final Widget body;
+
+  final double? height;
+
+  final void Function()? onPressed;
+
+  final SurfaceElevation elevation;
+
+  final EdgeInsetsGeometry? padding;
+
   const SurfaceCard({
     required this.title,
     required this.body,
@@ -65,16 +82,6 @@ class SurfaceCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(HMBTheme.padding),
     super.key,
   });
-
-  final String title;
-  final Widget body;
-
-  final double? height;
-
-  final void Function()? onPressed;
-
-  final SurfaceElevation elevation;
-  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) => GestureDetector(

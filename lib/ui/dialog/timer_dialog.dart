@@ -3,13 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class TimerDialog extends StatelessWidget {
+  final String title;
+
+  final void Function(Duration) onTimerSelected;
+
   const TimerDialog({
     required this.title,
     required this.onTimerSelected,
     super.key,
   });
-  final String title;
-  final void Function(Duration) onTimerSelected;
 
   /// Show the dialog
   static Future<Duration?> show(

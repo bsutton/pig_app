@@ -12,6 +12,18 @@ enum HMBDateTimeFieldMode { dateOnly, timeOnly, dateAndTime }
 /// Displays a Date and Time picker in separate fields.
 /// The value is passed to the [onChanged] callback.
 class HMBDateTimeField extends StatefulWidget {
+  final String label;
+
+  final DateTime initialDateTime;
+
+  final OnChanged onChanged;
+
+  final Validator? validator;
+
+  final double width;
+
+  final HMBDateTimeFieldMode mode;
+
   const HMBDateTimeField({
     required this.label,
     required this.initialDateTime,
@@ -21,13 +33,6 @@ class HMBDateTimeField extends StatefulWidget {
     this.width = 180,
     super.key,
   });
-
-  final String label;
-  final DateTime initialDateTime;
-  final OnChanged onChanged;
-  final Validator? validator;
-  final double width;
-  final HMBDateTimeFieldMode mode;
 
   @override
   // ignore: library_private_types_in_public_api

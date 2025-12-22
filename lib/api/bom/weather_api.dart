@@ -18,18 +18,21 @@ import 'bom_location.dart';
 /// These URIs come from reverse-engineering the Python library (weather_au/api.py).
 /// Whenever BOM changes its service, just update the strings below.
 class WeatherApi {
-  WeatherApi({this.geohash, this.search, this.debug = false});
-
   /// If you want to search by postcode or place name, set `search`. Otherwise, set `geohash`.
   final String? geohash;
+
   final String? search;
+
   final bool debug;
 
   /// The BOM v1 base URL (reverse-engineered from Python code).
   static const _base = 'https://api.weather.bom.gov.au/v1/';
 
   BomLocation? _location;
+
   DateTime? responseTimestamp;
+
+  WeatherApi({this.geohash, this.search, this.debug = false});
 
   /// Step 1: either search by “search” or lookup by “geohash”.
   /// On success, populates `_location` and returns it; else returns null.

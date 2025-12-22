@@ -1,9 +1,9 @@
 import 'package:http/http.dart';
 
 class IrrigationAppException implements Exception {
-  IrrigationAppException(this.message);
-
   String message;
+
+  IrrigationAppException(this.message);
 
   @override
   String toString() => message;
@@ -26,11 +26,11 @@ class InvalidPathException extends IrrigationAppException {
 }
 
 class NetworkException extends IrrigationAppException {
-  NetworkException(this.response, {this.action}) : super(response.body);
-
   Response response;
 
   String? action;
+
+  NetworkException(this.response, {this.action}) : super(response.body);
 
   @override
   String get message => '${response.statusCode} ${response.body} $action';

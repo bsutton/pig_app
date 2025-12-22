@@ -6,8 +6,9 @@ import '../widgets/pig_status_bar.dart';
 import 'nav_drawer.dart';
 
 class HomeWithDrawer extends StatelessWidget {
-  const HomeWithDrawer({required this.initialScreen, super.key});
   final Widget initialScreen;
+
+  const HomeWithDrawer({required this.initialScreen, super.key});
 
   @override
   Widget build(BuildContext context) => Scaffold(

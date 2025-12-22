@@ -3,6 +3,14 @@
 /// A small data-holder for each weather location returned by BOM.
 /// In the Python code, this was a simple dict under `self._location`.
 class BomLocation {
+  final String id;
+
+  final String name;
+
+  final String state;
+
+  final String geohash;
+
   BomLocation({
     required this.id,
     required this.name,
@@ -36,10 +44,6 @@ class BomLocation {
       geohash: data['geohash'] as String,
     );
   }
-  final String id;
-  final String name;
-  final String state;
-  final String geohash;
 
   Map<String, dynamic> toJson() => {
     'id': id,

@@ -3,6 +3,18 @@ import 'package:flutter/material.dart';
 import '../../../util/hmb_theme.dart';
 
 class HMBTextBlock extends StatelessWidget {
+  final String labelText;
+
+  final bool verticalPadding;
+
+  final bool bold;
+
+  final bool underline;
+
+  final int maxLines;
+
+  final Color? color;
+
   /// If [verticalPadding] is true, vertical padding is added before the text.
   const HMBTextBlock(
     this.labelText, {
@@ -13,13 +25,6 @@ class HMBTextBlock extends StatelessWidget {
     this.maxLines = 3,
     Color? color,
   }) : color = color ?? HMBColors.textPrimary;
-
-  final String labelText;
-  final bool verticalPadding;
-  final bool bold;
-  final bool underline;
-  final int maxLines;
-  final Color? color;
 
   @override
   Widget build(BuildContext context) => Padding(

@@ -1,4 +1,16 @@
 class LightingInfo {
+  final int id;
+
+  final String name;
+
+  final bool isOn;
+
+  final String? lastOnDate;
+
+  final bool timerRunning;
+
+  final int timerRemainingSeconds;
+
   LightingInfo({
     required this.id,
     required this.name,
@@ -16,10 +28,4 @@ class LightingInfo {
     timerRunning: json['timerRunning'] as bool,
     timerRemainingSeconds: json['timerRemainingSeconds'] as int,
   );
-  final int id;
-  final String name;
-  final bool isOn;
-  final String? lastOnDate;
-  final bool timerRunning;
-  final int timerRemainingSeconds;
 }

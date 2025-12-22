@@ -37,6 +37,14 @@ typedef Transition =
 /// Build multi-step wizards.
 /// [initialSteps] the set of states the wizard starts with.
 class Wizard extends StatefulWidget {
+  final WizardCompletion? onFinished;
+
+  final Transition? onTransition;
+
+  final List<WizardStep> initialSteps;
+
+  final String cancelLabel;
+
   Wizard({
     required this.initialSteps,
     super.key,
@@ -44,11 +52,6 @@ class Wizard extends StatefulWidget {
     this.onFinished,
     this.cancelLabel = 'Cancel',
   }) : assert(initialSteps.isNotEmpty, 'Must have at least one step');
-
-  final WizardCompletion? onFinished;
-  final Transition? onTransition;
-  final List<WizardStep> initialSteps;
-  final String cancelLabel;
 
   @override
   State<Wizard> createState() => WizardState();
@@ -693,10 +696,13 @@ class WizardState extends State<Wizard> {
 }
 
 class WizardStepTarget {
-  WizardStepTarget(this._wizardstate, this._intendedStep);
   final _completer = CompleterEx<WizardStep>();
+
   final WizardStep _intendedStep;
+
   final WizardState _wizardstate;
+
+  WizardStepTarget(this._wizardstate, this._intendedStep);
 
   void confirm() {
     _completer.complete(_intendedStep);

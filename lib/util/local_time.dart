@@ -9,6 +9,12 @@ import 'local_date.dart';
 /// the time component.
 @immutable
 class LocalTime {
+  final int hour;
+
+  final int minute;
+
+  final int second;
+
   const LocalTime({required this.hour, required this.minute, this.second = 0});
 
   factory LocalTime.parse(String time) {
@@ -23,9 +29,6 @@ class LocalTime {
     : hour = dateTime.hour,
       minute = dateTime.minute,
       second = dateTime.second;
-  final int hour;
-  final int minute;
-  final int second;
 
   DateTime toDateTime() {
     final now = DateTime.now();

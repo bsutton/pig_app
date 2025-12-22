@@ -13,15 +13,18 @@ typedef NoticeListener = void Function(Notice);
 /// We use web sockets for two way communications so that
 /// we can get notifications from the server
 class NotificationManager with WidgetsBindingObserver {
-  factory NotificationManager() => instance;
-  NotificationManager._();
   static var instance = NotificationManager._();
 
   late WebSocketChannel _channel;
+
   var _isConnected = false;
 
   /// List of listeners to receive notifications.
   final List<void Function(Notice)> _listeners = [];
+
+  factory NotificationManager() => instance;
+
+  NotificationManager._();
 
   /// Initialize the WebSocket and listen for app lifecycle events.
   void init() {

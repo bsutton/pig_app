@@ -8,6 +8,16 @@ import '../util/exceptions.dart';
 
 /// A simple data‐holder for all the weather fields we need.
 class WeatherInfo {
+  final double currentTempC;
+
+  final double forecastHighC;
+
+  final double forecastLowC;
+
+  final double rainLast24mm;
+
+  final double rainLast7Daysmm;
+
   WeatherInfo({
     required this.currentTempC,
     required this.forecastHighC,
@@ -15,17 +25,9 @@ class WeatherInfo {
     required this.rainLast24mm,
     required this.rainLast7Daysmm,
   });
-
-  final double currentTempC;
-  final double forecastHighC;
-  final double forecastLowC;
-  final double rainLast24mm;
-  final double rainLast7Daysmm;
 }
 
 class BomApi {
-  BomApi({this.stationId = 'IDK60904'});
-
   /// The base URL for BOM’s JSON REST endpoints. Adjust if your BOM service
   /// is hosted elsewhere (some teams proxy BOM data through their own server).
   // static const _base = 'https://api.bom.gov.au';
@@ -35,6 +37,8 @@ class BomApi {
   /// You will need to pick a station ID (e.g. “IDK60904” for Melbourne CBD).
   /// Alternatively, store this in settings or let the user pick a station.
   final String stationId;
+
+  BomApi({this.stationId = 'IDK60904'});
 
   /// Fetches everything in parallel:
   ///   • current temperature

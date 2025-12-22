@@ -6,18 +6,18 @@ import 'hmb_add_button.dart';
 /// I fyou need to be able to programatically clear the filter
 /// then pass in a [HMBSearchController]
 class HMBSearch extends StatefulWidget {
+  final Future<void> Function(String? filter) onChanged;
+
+  final String label;
+
+  final HMBSearchController? controller;
+
   const HMBSearch({
     required this.onChanged,
     this.label = 'Search',
     super.key,
     this.controller,
   });
-
-  final Future<void> Function(String? filter) onChanged;
-
-  final String label;
-
-  final HMBSearchController? controller;
 
   @override
   State<StatefulWidget> createState() => HMBSearchState();
@@ -77,6 +77,14 @@ class HMBSearchState extends State<HMBSearch> {
 }
 
 class HMBSearchWithAdd extends StatelessWidget {
+  final void Function(String? filter) onSearch;
+
+  final void Function() onAdd;
+
+  final String? hint;
+
+  final HMBSearchController? controller;
+
   /// The filter value returned via [onSearch] is
   /// trimmed and converted to lower case.
   const HMBSearchWithAdd({
@@ -86,14 +94,6 @@ class HMBSearchWithAdd extends StatelessWidget {
     this.hint = 'Add',
     super.key,
   });
-
-  final void Function(String? filter) onSearch;
-
-  final void Function() onAdd;
-
-  final String? hint;
-
-  final HMBSearchController? controller;
 
   @override
   Widget build(BuildContext context) => Row(

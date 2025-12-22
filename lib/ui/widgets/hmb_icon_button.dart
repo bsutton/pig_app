@@ -4,6 +4,16 @@ enum HMBIconButtonSize { small, standard, large }
 
 /// Displays an icon button with configurable size and tooltip.
 class HMBIconButton extends StatelessWidget {
+  final Future<void> Function()? onPressed;
+
+  final bool enabled;
+
+  final Icon icon;
+
+  final String? hint;
+
+  final HMBIconButtonSize size;
+
   const HMBIconButton({
     required this.onPressed,
     required this.hint,
@@ -12,12 +22,6 @@ class HMBIconButton extends StatelessWidget {
     this.size = HMBIconButtonSize.standard,
     super.key,
   });
-
-  final Future<void> Function()? onPressed;
-  final bool enabled;
-  final Icon icon;
-  final String? hint;
-  final HMBIconButtonSize size;
 
   // Define the size for each button size variant
   double get _size {

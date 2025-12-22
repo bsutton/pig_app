@@ -8,6 +8,15 @@ import 'ansi_color.dart';
 
 /// Logging class
 class Log extends Logger {
+  static late Log _self;
+
+  static late String _localPath;
+
+  static final _recentLogs = <String, DateTime>{};
+
+  /// The default log level.
+  static Level loggingLevel = Level.debug;
+
   Log();
 
   Log._internal(String currentWorkingDirectory)
@@ -71,13 +80,6 @@ class Log extends Logger {
     _self.e(message, error: error, stackTrace: stackTrace);
     return _self;
   }
-  static late Log _self;
-  static late String _localPath;
-
-  static final _recentLogs = <String, DateTime>{};
-
-  /// The default log level.
-  static Level loggingLevel = Level.debug;
 
   ///
   void debug(String message, {dynamic error, StackTrace? stackTrace}) {
@@ -134,13 +136,13 @@ class Log extends Logger {
 ///
 class MyLogPrinter extends LogPrinter {
   ///
-  MyLogPrinter(this.currentWorkingDirectory);
-
-  ///
   var colors = true;
 
   ///
   String currentWorkingDirectory;
+
+  ///
+  MyLogPrinter(this.currentWorkingDirectory);
 
   @override
   List<String> log(LogEvent event) {

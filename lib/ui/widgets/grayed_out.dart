@@ -10,11 +10,14 @@ import 'package:flutter/material.dart';
 /// a value of 0.0 makes the child fully opaque.
 /// The default value of [opacity] is 0.3.
 class GrayedOut extends StatelessWidget {
+  final Widget child;
+
+  final bool grayedOut;
+
+  final double opacity;
+
   const GrayedOut({required this.child, super.key, this.grayedOut = true})
     : opacity = grayedOut ? 0.3 : 1.0;
-  final Widget child;
-  final bool grayedOut;
-  final double opacity;
 
   @override
   Widget build(BuildContext context) => AbsorbPointer(

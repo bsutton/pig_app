@@ -2,6 +2,24 @@ import 'package:flutter/material.dart';
 
 /// Capitalises the first letter of each word in the text field.
 class HMBNameField extends StatelessWidget {
+  final TextEditingController controller;
+
+  final FocusNode? focusNode;
+
+  final String labelText;
+
+  final String? Function(String? value)? validator;
+
+  final bool autofocus;
+
+  final bool required;
+
+  final bool leadingSpace;
+
+  final TextInputType keyboardType;
+
+  final void Function(String?)? onChanged;
+
   const HMBNameField({
     required this.controller,
     required this.labelText,
@@ -14,16 +32,6 @@ class HMBNameField extends StatelessWidget {
     this.autofocus = false,
     this.leadingSpace = true,
   });
-
-  final TextEditingController controller;
-  final FocusNode? focusNode;
-  final String labelText;
-  final String? Function(String? value)? validator;
-  final bool autofocus;
-  final bool required;
-  final bool leadingSpace;
-  final TextInputType keyboardType;
-  final void Function(String?)? onChanged;
 
   @override
   Widget build(BuildContext context) => Column(

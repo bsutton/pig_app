@@ -4,13 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:pig_common/pig_common.dart';
 
 import '../util/exceptions.dart';
-
-/// After adding these imports, make sure you import BomApi below.
-import 'bom_api.dart';
 import 'settings.dart';
 
 class OverviewApi {
-  final _bom = BomApi();
+  // final _bom = BomApi();
 
   /// Fetches both (a) the “home‐grown” overview data (counts of beds, etc.)
   /// and (b) the BOM weather. Then returns a combined `OverviewData`.

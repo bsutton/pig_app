@@ -3,6 +3,26 @@ import 'package:flutter/material.dart';
 import '../../../util/hmb_theme.dart';
 
 class HMBTextField extends StatelessWidget {
+  final TextEditingController controller;
+
+  final FocusNode? focusNode;
+
+  final String labelText;
+
+  final String? Function(String? value)? validator;
+
+  final bool autofocus;
+
+  final bool required;
+
+  final bool leadingSpace;
+
+  final TextInputType keyboardType;
+
+  final void Function(String?)? onChanged;
+
+  final TextCapitalization textCapitalization;
+
   const HMBTextField({
     required this.controller,
     required this.labelText,
@@ -16,17 +36,6 @@ class HMBTextField extends StatelessWidget {
     this.leadingSpace = true,
     this.textCapitalization = TextCapitalization.none,
   });
-
-  final TextEditingController controller;
-  final FocusNode? focusNode;
-  final String labelText;
-  final String? Function(String? value)? validator;
-  final bool autofocus;
-  final bool required;
-  final bool leadingSpace;
-  final TextInputType keyboardType;
-  final void Function(String?)? onChanged;
-  final TextCapitalization textCapitalization;
 
   @override
   Widget build(BuildContext context) => Column(

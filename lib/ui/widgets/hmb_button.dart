@@ -7,6 +7,16 @@ import 'color_ex.dart';
 import 'layout/hmb_empty.dart';
 
 class HMBButton extends StatelessWidget {
+  final String label;
+
+  final Icon? icon;
+
+  final void Function() onPressed;
+
+  final bool enabled;
+
+  final Color color;
+
   const HMBButton({
     required this.label,
     required this.onPressed,
@@ -23,12 +33,6 @@ class HMBButton extends StatelessWidget {
     this.color = HMBColors.buttonLabel,
     super.key,
   });
-
-  final String label;
-  final Icon? icon;
-  final void Function() onPressed;
-  final bool enabled;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -47,17 +51,18 @@ class HMBButton extends StatelessWidget {
 }
 
 class HMBButtonPrimary extends StatelessWidget {
+  final String label;
+
+  final VoidCallback? onPressed;
+
+  final bool enabled;
+
   const HMBButtonPrimary({
     required this.label,
     required this.onPressed,
     super.key,
     this.enabled = true,
   });
-
-  final String label;
-  final VoidCallback? onPressed;
-
-  final bool enabled;
 
   @override
   Widget build(BuildContext context) => ElevatedButton.icon(
@@ -73,13 +78,15 @@ class HMBButtonPrimary extends StatelessWidget {
 }
 
 class HMBButtonSecondary extends StatelessWidget {
+  final String label;
+
+  final VoidCallback? onPressed;
+
   const HMBButtonSecondary({
     required this.label,
     required this.onPressed,
     super.key,
   });
-  final String label;
-  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) => ElevatedButton(
@@ -94,16 +101,18 @@ class HMBButtonSecondary extends StatelessWidget {
 }
 
 class HMBLinkButton extends StatelessWidget {
+  final String label;
+
+  final String link;
+
+  final VoidCallback? onPressed;
+
   const HMBLinkButton({
     required this.label,
     required this.onPressed,
     required this.link,
     super.key,
   });
-
-  final String label;
-  final String link;
-  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) => TextButton(

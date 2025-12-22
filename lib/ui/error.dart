@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ErrorScreen extends StatelessWidget {
-  const ErrorScreen({required this.errorMessage, super.key});
   final String errorMessage;
+
+  const ErrorScreen({required this.errorMessage, super.key});
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -29,13 +30,15 @@ class ErrorScreen extends StatelessWidget {
 }
 
 class FullScreenDialog extends StatelessWidget {
+  final String title;
+
+  final Widget content;
+
   const FullScreenDialog({
     required this.title,
     required this.content,
     super.key,
   });
-  final String title;
-  final Widget content;
 
   @override
   Widget build(BuildContext context) => Scaffold(

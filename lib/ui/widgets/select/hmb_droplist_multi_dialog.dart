@@ -6,6 +6,14 @@ import '../color_ex.dart';
 import '../hmb_button.dart';
 
 class HMBDroplistMultiSelectDialog<T> extends StatefulWidget {
+  final Future<List<T>> Function(String? filter) getItems;
+
+  final String Function(T) formatItem;
+
+  final String title;
+
+  final List<T> selectedItems;
+
   const HMBDroplistMultiSelectDialog({
     required this.getItems,
     required this.formatItem,
@@ -13,11 +21,6 @@ class HMBDroplistMultiSelectDialog<T> extends StatefulWidget {
     required this.selectedItems,
     super.key,
   });
-
-  final Future<List<T>> Function(String? filter) getItems;
-  final String Function(T) formatItem;
-  final String title;
-  final List<T> selectedItems;
 
   @override
   // ignore: library_private_types_in_public_api

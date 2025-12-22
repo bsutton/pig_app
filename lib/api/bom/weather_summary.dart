@@ -14,16 +14,22 @@ import 'weather_api.dart';
 ///
 /// Plus helper methods to build a simple dictionary of “label/value/unit” entries.
 class WeatherSummary {
-  WeatherSummary({String? geohash, String? search, bool debug = false})
-    : _api = WeatherApi(geohash: geohash, search: search, debug: debug);
   final WeatherApi _api;
 
   Map<String, dynamic>? locationData;
+
   List<Map<String, dynamic>> warningsData = [];
+
   Map<String, dynamic>? observationsData;
+
   Map<String, dynamic>? forecastRainData;
+
   List<Map<String, dynamic>> dailyData = [];
+
   List<Map<String, dynamic>> hourlyData = [];
+
+  WeatherSummary({String? geohash, String? search, bool debug = false})
+    : _api = WeatherApi(geohash: geohash, search: search, debug: debug);
 
   /// Call this first to populate everything
   Future<void> refresh() async {
@@ -57,7 +63,7 @@ class WeatherSummary {
     // Daily forecasts: we expect at least two days in dailyData
     if (dailyData.isNotEmpty) {
       final today = dailyData[0];
-      final tomorrow = dailyData.length > 1 ? dailyData[1] : null;
+      // final tomorrow = dailyData.length > 1 ? dailyData[1] : null;
 
       // Precis (short_text)
       final precis = today['short_text']?.toString() ?? '--';

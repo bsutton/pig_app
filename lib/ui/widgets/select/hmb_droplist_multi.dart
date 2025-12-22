@@ -44,6 +44,20 @@ class HMBDroplistMultiSelect<T> extends FormField<List<T>> {
 }
 
 class _HMBDroplistMultiSelect<T> extends StatefulWidget {
+  final FormFieldState<List<T>> state;
+
+  final Future<List<T>> Function() initialItems;
+
+  final Future<List<T>> Function(String? filter) items;
+
+  final String Function(T) format;
+
+  final void Function(List<T>) onChanged;
+
+  final String title;
+
+  final Color backgroundColor;
+
   const _HMBDroplistMultiSelect({
     required this.state,
     required this.initialItems,
@@ -54,14 +68,6 @@ class _HMBDroplistMultiSelect<T> extends StatefulWidget {
     required super.key,
     required this.backgroundColor,
   });
-
-  final FormFieldState<List<T>> state;
-  final Future<List<T>> Function() initialItems;
-  final Future<List<T>> Function(String? filter) items;
-  final String Function(T) format;
-  final void Function(List<T>) onChanged;
-  final String title;
-  final Color backgroundColor;
 
   @override
   _HMBDroplistMultiSelectState<T> createState() =>
