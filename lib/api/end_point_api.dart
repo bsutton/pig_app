@@ -15,31 +15,12 @@ class EndPointApi {
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({}),
-    ); // no body needed
+      body: jsonEncode({}), // no body needed
+    );
 
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
-      final list = body['endPoints'] as List<dynamic>? ?? [];
-      final epList = list
-          .map((e) => EndPointInfo.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      final bureauList = body['weatherBureaus'] as List<dynamic>? ?? [];
-      final bureaus = bureauList
-          .map((b) => WeatherBureauInfo.fromJson(b as Map<String, dynamic>))
-          .toList(); // if you want them
-
-      final stationList = body['weatherStations'] as List<dynamic>? ?? [];
-      final stations = stationList
-          .map((s) => WeatherStationInfo.fromJson(s as Map<String, dynamic>))
-          .toList(); // if you want them
-
-      return EndPointListData(
-        endPoints: epList,
-        bureaus: bureaus,
-        stations: stations,
-      );
+      return EndPointListData.fromJson(body);
     } else {
       throw NetworkException(response, action: 'Fetching EndPoints');
     }
@@ -65,26 +46,42 @@ class EndPointApi {
   /// Save or update an EndPoint
   /// For example: POST /end_point/save
   Future<void> saveEndPoint({
-    required String name,
-    required GPIOPinAssignment pinAssignment,
-    required PinActivationType activationType,
-    required EndPointType endPointType,
+    required EndPoint endPoint,
+    // required String name,
+    // required int ordinal,
+    // required GPIOPinAssignment pinAssignment,
+    // required PinActivationType activationType,
+    // required EndPointType endPointType,
     int? id,
   }) async {
     final uri = Uri.parse('$serverUrl/end_point/save');
 
-    final body = EndPointInfo(
+    final body = EndPointData(
       id: id,
-      name: name,
-      activationType: activationType,
-      pinAssignment: pinAssignment,
-      endPointType: endPointType,
+      ordinal: endPoint.ordinal,
+      name: endPoint.name,
+      activationType: endPoint.activationType,
+      gpioPinAssignment: GPIOPinAssignment.getByPinNo(endPoint.gpioPinNo),
+      endPointType: endPoint.endPointType,
       isOn: false,
     ).toJson();
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(body),
+    );
+    if (response.statusCode != 200) {
+      throw NetworkException(response, action: 'Saving EndPoint');
+    }
+  }
+
+  /// Save or update an EndPoint using a pre-built DTO.
+  Future<void> saveEndPointData({required EndPointData endPoint}) async {
+    final uri = Uri.parse('$serverUrl/end_point/save');
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(endPoint.toJson()),
     );
     if (response.statusCode != 200) {
       throw NetworkException(response, action: 'Saving EndPoint');
@@ -121,75 +118,4 @@ class EndPointApi {
       throw NetworkException(response, action: 'Deleting EndPoint');
     }
   }
-}
-
-/// Container for the list of endpoints and optional weather data
-class EndPointListData {
-  EndPointListData({
-    required this.endPoints,
-    required this.bureaus,
-    required this.stations,
-  });
-  final List<EndPointInfo> endPoints;
-  final List<WeatherBureauInfo> bureaus;
-  final List<WeatherStationInfo> stations;
-}
-
-/// Minimal representation of a WeatherBureau
-class WeatherBureauInfo {
-  WeatherBureauInfo({required this.id, required this.countryName});
-
-  factory WeatherBureauInfo.fromJson(Map<String, dynamic> json) =>
-      WeatherBureauInfo(
-        id: json['id'] as int,
-        countryName: json['countryName'] as String,
-      );
-
-  final int id;
-  final String countryName;
-}
-
-/// Minimal representation of a WeatherStation
-class WeatherStationInfo {
-  WeatherStationInfo({required this.id, required this.name});
-
-  factory WeatherStationInfo.fromJson(Map<String, dynamic> json) =>
-      WeatherStationInfo(id: json['id'] as int, name: json['name'] as String);
-
-  final int id;
-  final String name;
-}
-
-/// Data returned from `/end_point/edit_data`
-class EndPointEditData {
-  EndPointEditData({
-    required this.availablePins,
-    required this.activationTypes,
-    this.endPoint,
-  });
-
-  factory EndPointEditData.fromJson(Map<String, dynamic> json) {
-    EndPointInfo? ep;
-    final endPointJson = json['endPoint'] as Map<String, dynamic>?;
-    if (endPointJson != null) {
-      ep = EndPointInfo.fromJson(endPointJson);
-      // You might store pinNo or activationType in a new data class, etc.
-    }
-    final pins = (json['availablePins'] as List<dynamic>? ?? [])
-        .map((p) => GPIOPinAssignment.fromJson(p as Map<String, dynamic>))
-        .toList();
-
-    final acts = (json['activationTypes'] as List<dynamic>? ?? [])
-        .map((a) => PinActivationType.fromJson(a as String))
-        .toList();
-
-    return EndPointEditData(
-      endPoint: ep,
-      availablePins: pins,
-      activationTypes: acts,
-    );
-  }
-  final EndPointInfo? endPoint; // null if new
-  final List<GPIOPinAssignment> availablePins;
-  final List<PinActivationType> activationTypes;
 }

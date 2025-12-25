@@ -10,7 +10,6 @@ import '../widgets/hmb_toast.dart';
 class EndPointEditScreen extends StatefulWidget {
   /// If `endPointId` is null, we create a new end point; otherwise we edit an existing one.
   const EndPointEditScreen({super.key, this.endPointId});
-
   final int? endPointId;
 
   @override
@@ -24,8 +23,9 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
   bool get isNew => widget.endPointId == null;
 
   // Local data
-  int? endPointId;
+  EndPointData? endPointData;
   var name = '';
+  var ordinal = 0;
   GPIOPinAssignment? pinAssignment;
   PinActivationType? activationType;
   EndPointType? endPointType;
@@ -35,18 +35,19 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
 
   @override
   Future<void> asyncInitState() async {
-    final editData = await api.fetchEndPointEditData(
+    final endPointEditData = await api.fetchEndPointEditData(
       endPointId: widget.endPointId,
     );
-    if (editData.endPoint != null) {
-      endPointId = editData.endPoint!.id;
-      name = editData.endPoint!.name;
-      pinAssignment = editData.endPoint!.pinAssignment;
-      activationType = editData.endPoint!.activationType;
-      endPointType = editData.endPoint?.endPointType;
+    if (endPointEditData.endPoint != null) {
+      endPointData = endPointEditData.endPoint;
+      name = endPointData!.name;
+      ordinal = endPointData!.ordinal;
+      pinAssignment = endPointData!.gpioPinAssignment;
+      activationType = endPointData!.activationType;
+      endPointType = endPointData!.endPointType;
     }
-    activationTypes = editData.activationTypes;
-    availablePins = editData.availablePins;
+    activationTypes = endPointEditData.activationTypes;
+    availablePins = endPointEditData.availablePins;
   }
 
   Future<void> _save() async {
@@ -63,14 +64,21 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
       HMBToast.error('Please select an activation type');
       return;
     }
+    if (endPointType == null) {
+      HMBToast.error('Please select an End Point type');
+      return;
+    }
     try {
-      await api.saveEndPoint(
-        id: endPointId,
+      final payload = EndPointData(
+        id: endPointData?.id,
+        ordinal: ordinal,
         name: name,
-        pinAssignment: pinAssignment!,
         activationType: activationType!,
+        gpioPinAssignment: pinAssignment!,
         endPointType: endPointType!,
+        isOn: endPointData?.isOn ?? false,
       );
+      await api.saveEndPointData(endPoint: payload);
       if (mounted) {
         Navigator.of(context).pop(true);
       }
@@ -101,7 +109,7 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
             // Pin # dropdown
             DropdownButtonFormField<GPIOPinAssignment>(
               decoration: const InputDecoration(labelText: 'Pin Number'),
-              value: pinAssignment,
+              initialValue: pinAssignment,
               items: [
                 for (final pinAssignment in availablePins)
                   DropdownMenuItem<GPIOPinAssignment>(
@@ -123,7 +131,7 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
             // Activation Type
             DropdownButtonFormField<PinActivationType>(
               decoration: const InputDecoration(labelText: 'Activation Type'),
-              value: activationType,
+              initialValue: activationType,
               items: [
                 for (final type in activationTypes)
                   DropdownMenuItem<PinActivationType>(
@@ -143,7 +151,7 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
             // Activation Type
             DropdownButtonFormField<EndPointType>(
               decoration: const InputDecoration(labelText: 'EndPoint Type'),
-              value: endPointType,
+              initialValue: endPointType,
               items: [
                 for (final type in EndPointType.values)
                   DropdownMenuItem<EndPointType>(
