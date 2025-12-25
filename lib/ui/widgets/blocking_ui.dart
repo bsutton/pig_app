@@ -1,6 +1,7 @@
 // ignore_for_file: unused_element, unused_element_parameter
 
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:completer_ex/completer_ex.dart';
 import 'package:flutter/foundation.dart';
@@ -142,84 +143,86 @@ class _BlockingOverlayWidgetState extends State<_BlockingOverlayWidget> {
     if (widget.blockingUI.blocked) {
       // make it transparent for the first 500ms.
 
-      return Material(
-        child: TickBuilder(
-          limit: 100,
-          interval: const Duration(milliseconds: 100),
-          builder: (context, index) {
-            final showProgress =
-                DateTime.now().difference(widget.blockingUI.startTime!) >
-                const Duration(milliseconds: 500);
+      return IgnorePointer(
+        child: Material(
+          child: TickBuilder(
+            limit: 100,
+            interval: const Duration(milliseconds: 100),
+            builder: (context, index) {
+              final showProgress =
+                  DateTime.now().difference(widget.blockingUI.startTime!) >
+                  const Duration(milliseconds: 500);
 
-            // show label if we have been here more than 1 second.
-            final showLabel =
-                DateTime.now().difference(widget.blockingUI.startTime!) >
-                const Duration(milliseconds: 1000);
+              // show label if we have been here more than 1 second.
+              final showLabel =
+                  DateTime.now().difference(widget.blockingUI.startTime!) >
+                  const Duration(milliseconds: 1000);
 
-            return SizedBox(
-              height: height,
-              width: width,
-              child: Stack(
-                children: [
-                  // hide the help icon by drawing a container over it.
-                  if (showProgress && widget.hideHelpIcon)
+              return SizedBox(
+                height: height,
+                width: width,
+                child: Stack(
+                  children: [
+                    // hide the help icon by drawing a container over it.
+                    if (showProgress && widget.hideHelpIcon)
+                      Positioned(
+                        bottom: 5,
+                        right: HMBTheme.padding,
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          color: Colors.transparent,
+                        ),
+                      ), // .appBarColor)),
+                    // cover the entire screen with an overlay.
                     Positioned(
-                      bottom: 5,
-                      right: HMBTheme.padding,
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        color: Colors.transparent,
-                      ),
-                    ), // .appBarColor)),
-                  // cover the entire screen with an overlay.
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    height: height,
-                    width: width,
-                    child: Opacity(
-                      opacity: (showProgress ? 0.6 : 0),
-                      child: Container(color: Colors.grey),
-                    ),
-                  ),
-
-                  // draw the progress indicator
-                  if (showProgress)
-                    TopOrTail(
-                      placement: widget.placement,
-                      child: GestureDetector(
-                        onTap: cancelRun,
-                        child: const CircularProgressIndicator(),
-                      ),
-                    ),
-                  if (showLabel)
-                    Positioned(
-                      bottom: HMBTheme.padding,
+                      bottom: 0,
                       left: 0,
+                      height: height,
                       width: width,
-                      child: GestureDetector(
-                        onTap: cancelRun,
-                        child: Center(
-                          child: Chip(
-                            label: (widget.blockingUI.topAction.label == null
-                                ? HMBTextChip('Just a moment...')
-                                : HMBTextChip('''
+                      child: Opacity(
+                        opacity: (showProgress ? 0.6 : 0),
+                        child: Container(color: Colors.grey),
+                      ),
+                    ),
+
+                    // draw the progress indicator
+                    if (showProgress)
+                      TopOrTail(
+                        placement: widget.placement,
+                        child: GestureDetector(
+                          onTap: cancelRun,
+                          child: const CircularProgressIndicator(),
+                        ),
+                      ),
+                    if (showLabel)
+                      Positioned(
+                        bottom: HMBTheme.padding,
+                        left: 0,
+                        width: width,
+                        child: GestureDetector(
+                          onTap: cancelRun,
+                          child: Center(
+                            child: Chip(
+                              label: (widget.blockingUI.topAction.label == null
+                                  ? HMBTextChip('Just a moment...')
+                                  : HMBTextChip('''
         Just a moment: ${widget.blockingUI.topAction.label}''')),
-                            backgroundColor: Colors.yellow,
-                            elevation: 7,
+                              backgroundColor: Colors.yellow,
+                              elevation: 7,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-            );
-          },
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       );
     } else {
-      return Container();
+      return const SizedBox.shrink();
     }
   }
 
@@ -286,6 +289,12 @@ class BlockingUI extends JuneState {
   /// manages a possible nested set of calls to [run]
   StackList<ActionRunner<dynamic>> actions = StackList();
 
+  Future<void> _waitForAllActions = Future.value();
+
+  DateTime? startTime;
+
+  var count = 0;
+
   ActionRunner<dynamic> get topAction => actions.peek();
 
   /// Executes a long running function asking the user to wait
@@ -317,8 +326,6 @@ class BlockingUI extends JuneState {
     return actionRunner.completer;
   }
 
-  Future<void> _waitForAllActions = Future.value();
-
   Future<void> get waitForAllActions => _waitForAllActions;
 
   /// True if any of the actions are still running.
@@ -332,9 +339,6 @@ class BlockingUI extends JuneState {
 
   /// The stack trace of the first action that is blocking the UI.
   StackTrace get stackTrace => actions.peek().stackTrace;
-
-  DateTime? startTime;
-  var count = 0;
 
   ///
   /// begin
@@ -350,6 +354,11 @@ class BlockingUI extends JuneState {
     if (count == 1) {
       startTime = DateTime.now();
     }
+
+    developer.log(
+      'BlockingUI begin: ${actionRunner.label ?? "unnamed action"}',
+      name: 'pig_app.blocking_ui',
+    );
 
     /// start the action.
     actionRunner.start();
@@ -379,6 +388,11 @@ class BlockingUI extends JuneState {
     if (count == 0) {
       startTime = null;
     }
+
+    developer.log(
+      'BlockingUI end: remaining=$count',
+      name: 'pig_app.blocking_ui',
+    );
 
     /// refresh so the label can be updated or if there are
     /// no remaining actions then the UI can be unblocked.
