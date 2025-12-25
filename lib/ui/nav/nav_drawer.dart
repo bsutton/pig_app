@@ -6,7 +6,6 @@ import 'drawer_item.dart';
 class MyDrawer extends StatelessWidget {
   MyDrawer({super.key});
 
-  /// Here’s a revised structure reflecting the Java app’s menu:
   final drawerItems = <DrawerItem>[
     DrawerItem(title: 'Overview', route: '/overview'),
     DrawerItem(title: 'Garden Beds', route: '/garden_beds'),
@@ -18,6 +17,10 @@ class MyDrawer extends StatelessWidget {
       route: '',
       children: [
         DrawerItem(title: 'EndPoint Configuration', route: '/config/endpoints'),
+        DrawerItem(
+          title: 'Valve Pin Mapping',
+          route: '/config/valve_pin_mapping',
+        ),
         DrawerItem(
           title: 'GardenBed Configuration',
           route: '/config/gardenbeds',
