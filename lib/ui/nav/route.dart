@@ -12,6 +12,7 @@ import '../screens/login_screen.dart';
 import '../screens/overview_screen.dart';
 import '../screens/reset_password_screen.dart';
 import '../screens/schedule_screen.dart';
+import '../screens/valve_pin_mapping_screen.dart';
 import 'home_with_drawer.dart';
 
 var userIsLoggedIn = true; // Global or stored in a Provider/Bloc, etc.
@@ -19,7 +20,7 @@ var systemConfigured = true;
 
 GoRouter get router => GoRouter(
   debugLogDiagnostics: true,
-  // 1) Redirect root to either the first-run wizard, or if configured, then either /jobs if logged in or /login if not
+  // 1) Redirect root to either the first-run wizard, or if configured, then either /overview
   routes: [
     GoRoute(
       path: '/',
@@ -96,7 +97,11 @@ GoRouter get router => GoRouter(
       builder: (_, _) =>
           const HomeWithDrawer(initialScreen: EndPointConfigurationScreen()),
     ),
-    // Add more private routes as needed...
+    GoRoute(
+      path: '/config/valve_pin_mapping',
+      builder: (_, _) =>
+          const HomeWithDrawer(initialScreen: ValvePinMappingScreen()),
+    ),
   ],
   // 5) A routing guard or refresh logic can go here if you want to dynamically check [userIsLoggedIn] on each route
   redirect: (context, state) {
