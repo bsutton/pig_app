@@ -1,4 +1,5 @@
-// end_point_configuration_screen.dart
+// lib/src/ui/end_point/end_point_configuration_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:future_builder_ex/future_builder_ex.dart';
 import 'package:pig_common/pig_common.dart';
@@ -21,8 +22,11 @@ class _EndPointConfigurationScreenState
   final api = EndPointApi();
   late Future<EndPointListData> _listFuture;
 
-  WeatherBureauInfo? selectedBureau;
-  WeatherStationInfo? selectedStation;
+  /// Local mutable list so we can reorder in‐memory
+  List<EndPointData>? _endPoints;
+
+  WeatherBureauData? selectedBureau;
+  WeatherStationData? selectedStation;
 
   @override
   void initState() {
@@ -31,29 +35,40 @@ class _EndPointConfigurationScreenState
     _listFuture = _fetchData();
   }
 
-  Future<EndPointListData> _fetchData() async => api.listEndPoints();
+  Future<EndPointListData> _fetchData() async {
+    final data = await api.listEndPoints();
+    // Sort by ordinal before returning
+    data.endPoints.sort((a, b) => a.ordinal.compareTo(b.ordinal));
+    return data;
+  }
 
-  Future<void> _toggleEndPoint(EndPointInfo info, bool turnOn) async {
-    // Optional: block if a valve is running, but you'd do that server side
+  Future<void> _toggleEndPoint(EndPointData info, bool turnOn) async {
     try {
       await api.toggleEndPoint(endPointId: info.id!, turnOn: turnOn);
-      setState(() {
-        _listFuture = _fetchData(); // refresh
-      });
+      final updated = EndPointData(
+        id: info.id,
+        ordinal: info.ordinal,
+        name: info.name,
+        activationType: info.activationType,
+        gpioPinAssignment: info.gpioPinAssignment,
+        endPointType: info.endPointType,
+        isOn: turnOn,
+      );
+      _replaceEndPoint(updated);
     } on NetworkException catch (e) {
       HMBToast.error('Toggle failed: $e');
-      // revert the switch in UI
-      setState(() {});
+      setState(() {}); // revert UI
     }
   }
 
-  Future<void> _deleteEndPoint(EndPointInfo info) async {
-    // If we want to check "any valve running", do it server side
+  Future<void> _deleteEndPoint(EndPointData info) async {
+    // TODO(bsutton): don't allow the user to delete the endpoint
+    // if it is running - do check server side.
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Delete EndPoint?'),
-        content: Text('Are you sure you want to delete "${info.name}"?'),
+        content: Text('Are you sure you want to delete  "${info.name}"?'),
         actions: [
           TextButton(
             child: const Text('Cancel'),
@@ -79,15 +94,16 @@ class _EndPointConfigurationScreenState
   }
 
   Future<void> _refresh() async {
+    _endPoints = null;
     _listFuture = _fetchData();
     setState(() {});
   }
 
-  Future<void> _editEndPoint(EndPointInfo info) async {
-    final result = await Navigator.push(
+  Future<void> _editEndPoint(EndPointData info) async {
+    final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute<bool>(
-        builder: (ctx) => EndPointEditScreen(endPointId: info.id),
+      MaterialPageRoute(
+        builder: (_) => EndPointEditScreen(endPointId: info.id),
       ),
     );
     if (result ?? false) {
@@ -96,14 +112,14 @@ class _EndPointConfigurationScreenState
   }
 
   Future<void> _addEndPoint() async {
-    await Navigator.push(
+    await Navigator.push<bool>(
       context,
-      MaterialPageRoute<bool>(builder: (ctx) => const EndPointEditScreen()),
+      MaterialPageRoute(builder: (_) => const EndPointEditScreen()),
     );
     await _refresh();
   }
 
-  void _onBureauSelected(WeatherBureauInfo? bureau) {
+  void _onBureauSelected(WeatherBureauData? bureau) {
     setState(() {
       selectedBureau = bureau;
       selectedStation = null;
@@ -111,88 +127,136 @@ class _EndPointConfigurationScreenState
     });
   }
 
-  void _onStationSelected(WeatherStationInfo? station) {
+  void _onStationSelected(WeatherStationData? station) {
     setState(() {
       selectedStation = station;
     });
   }
 
+  void _replaceEndPoint(EndPointData updated) {
+    setState(() {
+      final list = _endPoints;
+      if (list == null) {
+        return;
+      }
+      final index = list.indexWhere((ep) => ep.id == updated.id);
+      if (index == -1) {
+        list.add(updated);
+      } else {
+        list[index] = updated;
+      }
+    });
+  }
+
+  /// After reordering in-memory, persist the new ordinals to the backend.
+  Future<void> _persistOrder() async {
+    if (_endPoints == null) {
+      return;
+    }
+    for (var i = 0; i < _endPoints!.length; i++) {
+      final ep = _endPoints![i];
+      if (ep.ordinal != i) {
+        final updated = EndPointData(
+          id: ep.id,
+          ordinal: i,
+          name: ep.name,
+          activationType: ep.activationType,
+          gpioPinAssignment: ep.gpioPinAssignment,
+          endPointType: ep.endPointType,
+          isOn: ep.isOn,
+        );
+        try {
+          // Assume save updates ordinal on the server
+          await api.saveEndPointData(endPoint: updated);
+          _replaceEndPoint(updated);
+        } on NetworkException catch (e) {
+          HMBToast.error('Failed to save order for ${ep.name}: $e');
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('End Points')),
-    body: FutureBuilderEx(
+    body: FutureBuilderEx<EndPointListData>(
       future: _listFuture,
-      builder: (context, data) => Column(
-        children: [
-          _buildWeatherSelectors(data!),
-          Expanded(child: _buildEndpointList(data)),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: ElevatedButton.icon(
-                onPressed: _addEndPoint,
-                icon: const Icon(Icons.add),
-                label: const Text('Add'),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+      builder: (context, data) {
+        // Initialize local list once
+        _endPoints ??= List.of(data!.endPoints);
+        return Column(
+          children: [
+            _buildWeatherSelectors(data!),
+            Expanded(child: _buildEndpointList()),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: ElevatedButton.icon(
+                  onPressed: _addEndPoint,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                ),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     ),
   );
 
   Widget _buildWeatherSelectors(EndPointListData data) => Column(
     children: [
       // Weather bureau combo
-      DropdownButtonFormField<WeatherBureauInfo>(
+      DropdownButtonFormField<WeatherBureauData>(
         decoration: const InputDecoration(labelText: 'Weather Bureau'),
         value: selectedBureau,
         items: data.bureaus
-            .map(
-              (b) => DropdownMenuItem<WeatherBureauInfo>(
-                value: b,
-                child: Text(b.countryName),
-              ),
-            )
+            .map((b) => DropdownMenuItem(value: b, child: Text(b.countryName)))
             .toList(),
         onChanged: _onBureauSelected,
       ),
       // Weather station combo
-      DropdownButtonFormField<WeatherStationInfo>(
+      DropdownButtonFormField<WeatherStationData>(
         decoration: const InputDecoration(labelText: 'Weather Station'),
         value: selectedStation,
         items: data.stations
-            .map(
-              (s) => DropdownMenuItem<WeatherStationInfo>(
-                value: s,
-                child: Text(s.name),
-              ),
-            )
+            .map((s) => DropdownMenuItem(value: s, child: Text(s.name)))
             .toList(),
         onChanged: _onStationSelected,
       ),
     ],
   );
 
-  Widget _buildEndpointList(EndPointListData data) {
-    if (data.endPoints.isEmpty) {
+  Widget _buildEndpointList() {
+    final list = _endPoints!;
+    if (list.isEmpty) {
       return const Center(child: Text('No EndPoints configured.'));
     }
-    return ListView.builder(
-      itemCount: data.endPoints.length,
+    return ReorderableListView.builder(
+      key: const PageStorageKey('endPointList'),
+      itemCount: list.length,
+      onReorder: (oldIndex, newIndex) async {
+        // Adjust for removal
+        if (newIndex > oldIndex) {
+          newIndex -= 1;
+        }
+        final moved = list.removeAt(oldIndex);
+        list.insert(newIndex, moved);
+        setState(() {});
+        await _persistOrder();
+      },
       itemBuilder: (context, index) {
-        final ep = data.endPoints[index];
+        final ep = list[index];
         return Card(
-          margin: const EdgeInsets.all(8),
+          key: ValueKey(ep.id),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: ListTile(
             title: Text(ep.name),
-            subtitle: Text('${ep.endPointType}, ${ep.pinAssignment}'),
-            trailing: Switch(
-              value: ep.isOn,
-              onChanged: (val) => _toggleEndPoint(ep, val),
-            ),
+            subtitle: Text('${ep.endPointType}, ${ep.gpioPinAssignment}'),
             leading: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -204,7 +268,12 @@ class _EndPointConfigurationScreenState
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () => _deleteEndPoint(ep),
                 ),
+                const Icon(Icons.drag_handle),
               ],
+            ),
+            trailing: Switch(
+              value: ep.isOn,
+              onChanged: (val) => _toggleEndPoint(ep, val),
             ),
           ),
         );
