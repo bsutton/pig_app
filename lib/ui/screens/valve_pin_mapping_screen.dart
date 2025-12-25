@@ -213,24 +213,24 @@ class _ValvePinMappingScreenState extends State<ValvePinMappingScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Valve Pin Mapping')),
-        body: FutureBuilderEx<EndPointListData>(
-          future: _listFuture,
-          builder: (context, data) {
-            _ensureEndPoints(data!);
-            final endPoints = _endPoints!;
-            final pinUsage = _pinUsageMap(data.endPoints);
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const _MappingIntroCard(),
-                Expanded(
-                  child: ValueListenableBuilder<int?>(
-                    valueListenable: _pulsingEndPointId,
-                    builder: (context, pulsingId, __) =>
-                        ValueListenableBuilder<Set<int>>(
+    appBar: AppBar(title: const Text('Valve Pin Mapping')),
+    body: FutureBuilderEx<EndPointListData>(
+      future: _listFuture,
+      builder: (context, data) {
+        _ensureEndPoints(data!);
+        final endPoints = _endPoints!;
+        final pinUsage = _pinUsageMap(data.endPoints);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const _MappingIntroCard(),
+            Expanded(
+              child: ValueListenableBuilder<int?>(
+                valueListenable: _pulsingEndPointId,
+                builder: (context, pulsingId, _) =>
+                    ValueListenableBuilder<Set<int>>(
                       valueListenable: _savingEndPointIds,
-                      builder: (context, savingIds, __) => _ValvePinList(
+                      builder: (context, savingIds, _) => _ValvePinList(
                         endPoints: endPoints,
                         pinUsage: pinUsage,
                         selectedPins: _selectedPins,
@@ -241,13 +241,13 @@ class _ValvePinMappingScreenState extends State<ValvePinMappingScreen> {
                         onPulse: _pulseEndPoint,
                       ),
                     ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      );
+              ),
+            ),
+          ],
+        );
+      },
+    ),
+  );
 
   void _onPinChanged(EndPointData endPoint, GPIOPinAssignment? pin) {
     final id = endPoint.id;
@@ -265,27 +265,27 @@ class _MappingIntroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-        margin: const EdgeInsets.all(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Live manual test panel',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Select a GPIO pin, pulse the valve, and confirm which valve '
-                'opened. Pulse will save changes before testing.',
-              ),
-              const SizedBox(height: 8),
-              const Text('Pulse length: 0.7 seconds.'),
-            ],
+    margin: const EdgeInsets.all(16),
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Live manual test panel',
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-        ),
-      );
+          const SizedBox(height: 8),
+          const Text(
+            'Select a GPIO pin, pulse the valve, and confirm which valve '
+            'opened. Pulse will save changes before testing.',
+          ),
+          const SizedBox(height: 8),
+          const Text('Pulse length: 0.7 seconds.'),
+        ],
+      ),
+    ),
+  );
 }
 
 class _ValvePinList extends StatelessWidget {
@@ -349,7 +349,7 @@ class _ValvePinList extends StatelessWidget {
         return ListView.separated(
           padding: padding,
           itemCount: endPoints.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 16),
+          separatorBuilder: (_, _) => const SizedBox(height: 16),
           itemBuilder: (context, index) => _ValvePinCard(
             endPoint: endPoints[index],
             pinUsage: pinUsage,
@@ -419,7 +419,7 @@ class _ValvePinCard extends StatelessWidget {
             const SizedBox(height: 16),
             DropdownButtonFormField<GPIOPinAssignment>(
               decoration: const InputDecoration(labelText: 'Test GPIO pin'),
-              value: selectedPin,
+              initialValue: selectedPin,
               items: GPIOPinAssignment.values.map((pin) {
                 final usage = pinUsage[pin.gpioPin];
                 final isCurrent = pin.gpioPin == currentPin.gpioPin;
@@ -439,8 +439,9 @@ class _ValvePinCard extends StatelessWidget {
             Row(
               children: [
                 OutlinedButton(
-                  onPressed:
-                      (!hasChanged || isBusy) ? null : () => onSave(endPoint),
+                  onPressed: (!hasChanged || isBusy)
+                      ? null
+                      : () => onSave(endPoint),
                   child: isSaving
                       ? const SizedBox(
                           height: 16,

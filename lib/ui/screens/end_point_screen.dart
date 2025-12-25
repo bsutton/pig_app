@@ -213,7 +213,7 @@ class _EndPointConfigurationScreenState
       // Weather bureau combo
       DropdownButtonFormField<WeatherBureauData>(
         decoration: const InputDecoration(labelText: 'Weather Bureau'),
-        value: selectedBureau,
+        initialValue: selectedBureau,
         items: data.bureaus
             .map((b) => DropdownMenuItem(value: b, child: Text(b.countryName)))
             .toList(),
@@ -222,7 +222,7 @@ class _EndPointConfigurationScreenState
       // Weather station combo
       DropdownButtonFormField<WeatherStationData>(
         decoration: const InputDecoration(labelText: 'Weather Station'),
-        value: selectedStation,
+        initialValue: selectedStation,
         items: data.stations
             .map((s) => DropdownMenuItem(value: s, child: Text(s.name)))
             .toList(),
