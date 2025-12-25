@@ -11,7 +11,6 @@ import '../widgets/hmb_toast.dart';
 class GardenBedEditScreen extends StatefulWidget {
   /// If `gardenBedId` is null, we create a new bed; otherwise we edit an existing bed.
   const GardenBedEditScreen({super.key, this.gardenBedId});
-
   final int? gardenBedId;
 
   @override
@@ -167,15 +166,17 @@ class _GardenBedEditScreenState extends DeferredState<GardenBedEditScreen> {
     ),
   );
 
-  Widget _buildValveDropdown() => DropdownButtonFormField<EndPointInfo>(
+  Widget _buildValveDropdown() => DropdownButtonFormField<EndPointData>(
     decoration: const InputDecoration(labelText: 'Valve'),
-    value: bedData.valves.firstWhereOrNull((value) => value.id == bed.valveId),
+    initialValue: bedData.valves.firstWhereOrNull(
+      (value) => value.id == bed.valveId,
+    ),
     items: [
       for (final val in bedData.valves)
-        DropdownMenuItem<EndPointInfo>(
+        DropdownMenuItem<EndPointData>(
           value: val,
           child: Text(
-            '${val.name} (GPIO Pin ${val.pinAssignment.gpioPin} (Header: ${val.pinAssignment.headerPin}))',
+            '${val.name} (GPIO Pin ${val.gpioPinAssignment.gpioPin} (Header: ${val.gpioPinAssignment.headerPin}))',
           ),
         ),
     ],
@@ -189,14 +190,14 @@ class _GardenBedEditScreenState extends DeferredState<GardenBedEditScreen> {
 
   Widget _buildMasterValveDropdown() => DropdownButtonFormField<int>(
     decoration: const InputDecoration(labelText: 'Master Valve (optional)'),
-    value: bed.masterValveId,
+    initialValue: bed.masterValveId,
     items: [
       const DropdownMenuItem<int>(child: Text('None')),
       for (final val in bedData.masterValves)
         DropdownMenuItem<int>(
           value: val.id,
           child: Text(
-            '${val.name} (GPIO Pin ${val.pinAssignment.gpioPin} (Header: ${val.pinAssignment.headerPin}))',
+            '${val.name} (GPIO Pin ${val.gpioPinAssignment.gpioPin} (Header: ${val.gpioPinAssignment.headerPin}))',
           ),
         ),
     ],
