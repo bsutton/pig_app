@@ -8,9 +8,15 @@ import '../../util/exceptions.dart';
 import '../widgets/hmb_toast.dart';
 
 class EndPointEditScreen extends StatefulWidget {
-  /// If `endPointId` is null, we create a new end point; otherwise we edit an existing one.
-  const EndPointEditScreen({super.key, this.endPointId});
+  /// If `endPointId` is null, we create a new end point; otherwise we edit an
+  /// existing one.
+  const EndPointEditScreen({
+    super.key,
+    this.endPointId,
+    this.initialPinAssignment,
+  });
   final int? endPointId;
+  final GPIOPinAssignment? initialPinAssignment;
 
   @override
   _EndPointEditScreenState createState() => _EndPointEditScreenState();
@@ -48,6 +54,15 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
     }
     activationTypes = endPointEditData.activationTypes;
     availablePins = endPointEditData.availablePins;
+    if (isNew && pinAssignment == null && widget.initialPinAssignment != null) {
+      pinAssignment = widget.initialPinAssignment;
+      if (!availablePins.contains(pinAssignment)) {
+        availablePins = [
+          pinAssignment!,
+          ...availablePins,
+        ];
+      }
+    }
   }
 
   Future<void> _save() async {
@@ -115,7 +130,8 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
                   DropdownMenuItem<GPIOPinAssignment>(
                     value: pinAssignment,
                     child: Text(
-                      'Pin ${pinAssignment.gpioPin} (header: ${pinAssignment.headerPin})',
+                      'Pin ${pinAssignment.gpioPin} '
+                      '(header: ${pinAssignment.headerPin})',
                     ),
                   ),
               ],

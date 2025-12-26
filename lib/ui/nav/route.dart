@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../../api/end_point_api.dart';
 import '../error.dart';
 import '../screens/end_point_screen.dart';
 import '../screens/first_run_screen.dart';
@@ -9,18 +10,30 @@ import '../screens/garden_bed_list_screen.dart';
 import '../screens/history_screen.dart';
 import '../screens/lighting_view_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/onboarding_screen.dart';
 import '../screens/overview_screen.dart';
 import '../screens/reset_password_screen.dart';
 import '../screens/schedule_screen.dart';
 import '../screens/valve_pin_mapping_screen.dart';
 import 'home_with_drawer.dart';
+import 'onboarding_state.dart';
 
 var userIsLoggedIn = true; // Global or stored in a Provider/Bloc, etc.
 var systemConfigured = true;
 
+Future<bool> _hasConfiguredEndPoints() async {
+  try {
+    final data = await EndPointApi().listEndPoints();
+    return data.endPoints.isNotEmpty;
+  } catch (_) {
+    return true;
+  }
+}
+
 GoRouter get router => GoRouter(
   debugLogDiagnostics: true,
-  // 1) Redirect root to either the first-run wizard, or if configured, then either /overview
+  // 1) Redirect root to either the first-run wizard, or if configured, then
+  // either /overview
   routes: [
     GoRoute(
       path: '/',
@@ -42,7 +55,8 @@ GoRouter get router => GoRouter(
         return ErrorScreen(errorMessage: message);
       },
     ),
-    // 3) Public routes: The 'public' prefix is optional, but clarifies that these do NOT require auth
+    // 3) Public routes: The 'public' prefix is optional, but clarifies that
+    // these do NOT require auth
     GoRoute(
       path: '/public/login',
       builder: (context, state) =>
@@ -63,7 +77,12 @@ GoRouter get router => GoRouter(
       builder: (context, state) =>
           const HomeWithDrawer(initialScreen: FirstRunScreen()),
     ),
-    // 4) Authenticated (Private) routes. Each references a screen with a drawer + your main content
+    GoRoute(
+      path: '/public/onboarding',
+      builder: (context, state) => const OnboardingScreen(),
+    ),
+    // 4) Authenticated (Private) routes. Each references a screen with a
+    // drawer + your main content
     GoRoute(
       path: '/lighting',
       builder: (_, _) =>
@@ -103,8 +122,9 @@ GoRouter get router => GoRouter(
           const HomeWithDrawer(initialScreen: ValvePinMappingScreen()),
     ),
   ],
-  // 5) A routing guard or refresh logic can go here if you want to dynamically check [userIsLoggedIn] on each route
-  redirect: (context, state) {
+  // 5) A routing guard or refresh logic can go here if you want to dynamically
+  // check [userIsLoggedIn] on each route
+  redirect: (context, state) async {
     // If system not configured => route them to /public/first_run
     if (!systemConfigured && state.uri.toString() != '/public/first_run') {
       return '/public/first_run';
@@ -113,6 +133,15 @@ GoRouter get router => GoRouter(
     final isPublicRoute = state.uri.toString().startsWith('/public');
     if (!userIsLoggedIn && !isPublicRoute) {
       return '/public/login';
+    }
+    if (!onboardingDismissed) {
+      final hasEndPoints = await _hasConfiguredEndPoints();
+      final location = state.uri.toString();
+      if (!hasEndPoints &&
+          location != '/public/onboarding' &&
+          location != '/config/valve_pin_mapping') {
+        return '/public/onboarding';
+      }
     }
     return null; // no change
   },

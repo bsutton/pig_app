@@ -26,12 +26,24 @@ class InvalidPathException extends IrrigationAppException {
 }
 
 class NetworkException extends IrrigationAppException {
-  Response response;
+  // Either a Response or another Exception
+  final Response? _response;
+  final Exception? _cause;
 
   String? action;
 
-  NetworkException(this.response, {this.action}) : super(response.body);
+  NetworkException(Response response, {this.action})
+    : _response = response,
+      _cause = null,
+      super(response.body);
+
+  NetworkException.fromException(Exception cause, {this.action})
+    : _cause = cause,
+      _response = null,
+      super(cause.toString());
 
   @override
-  String get message => '${response.statusCode} ${response.body} $action';
+  String get message => _cause != null
+      ? 'NetworkException: $_cause $action'
+      : '${_response!.statusCode} ${_response.body} $action';
 }

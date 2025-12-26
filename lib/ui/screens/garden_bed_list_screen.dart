@@ -45,6 +45,10 @@ class _GardenBedListScreenState extends DeferredState<GardenBedListScreen> {
   void dispose() {
     print(orange('removing notification listener'));
     NotificationManager().removeListener(noticeListener);
+    for (final timer in timers.values) {
+      timer.cancel();
+    }
+    timers.clear();
     super.dispose();
   }
 

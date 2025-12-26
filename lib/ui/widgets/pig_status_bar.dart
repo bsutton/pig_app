@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:future_builder_ex/future_builder_ex.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pig_common/pig_common.dart';
 
 import '../../api/gardenbed_api.dart';
@@ -59,6 +60,22 @@ class _PIGStatusBarState extends State<PIGStatusBar> {
           child: FutureBuilderEx(
             // ignore: discarded_futures
             future: GardenBedApi().fetchGardenBeds(),
+            errorBuilder: (context, error) => Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Network error: $error',
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Reload',
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  onPressed: () => _reloadCurrentRoute(context),
+                ),
+              ],
+            ),
             builder: (context, bedList) => Text(
               running.isEmpty
                   ? ''
@@ -71,4 +88,13 @@ class _PIGStatusBarState extends State<PIGStatusBar> {
       ],
     ),
   );
+
+  void _reloadCurrentRoute(BuildContext context) {
+    final router = GoRouter.of(context);
+    final location = router.routerDelegate.currentConfiguration.uri.toString();
+    if (location.isEmpty) {
+      return;
+    }
+    router.go(location);
+  }
 }

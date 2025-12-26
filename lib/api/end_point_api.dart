@@ -105,6 +105,28 @@ class EndPointApi {
     }
   }
 
+  /// Pulse a GPIO pin without requiring an endpoint mapping.
+  /// POST /end_point/pulse_pin
+  Future<void> pulsePin({
+    required int pinNo,
+    required int durationMs,
+    PinActivationType activationType = PinActivationType.highIsOn,
+  }) async {
+    final uri = Uri.parse('$serverUrl/end_point/pulse_pin');
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'pinNo': pinNo,
+        'durationMs': durationMs,
+        'activationType': activationType.name,
+      }),
+    );
+    if (response.statusCode != 200) {
+      throw NetworkException(response, action: 'Pulsing Pin');
+    }
+  }
+
   /// Delete an endpoint
   /// POST /end_point/delete
   Future<void> deleteEndPoint(int endPointId) async {

@@ -46,4 +46,16 @@ class LightingApi {
       throw NetworkException(response);
     }
   }
+
+  Future<void> deleteLight(int lightId) async {
+    final url = Uri.parse('$serverUrl/lighting/delete');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'lightId': lightId}),
+    );
+    if (response.statusCode != 200) {
+      throw NetworkException(response);
+    }
+  }
 }

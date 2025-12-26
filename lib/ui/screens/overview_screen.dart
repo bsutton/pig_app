@@ -14,14 +14,14 @@ class OverviewScreen extends StatefulWidget {
 }
 
 class _OverviewScreenState extends DeferredState<OverviewScreen> {
-  late OverviewData? _overviewData;
+  late final OverviewData? _overviewData;
 
   final api = OverviewApi();
 
   @override
   Future<void> asyncInitState() async {
     // Now this call internally fetches both (a) your app’s “counts/events”
-    // and (b) the BOM weather. By the time it completes, _overviewData.temp, etc.
+    // and (b) the BOM weather. By the time it completes, _overviewData.temp,
     // are all populated.
     _overviewData = await api.fetchOverviewData();
   }
@@ -37,10 +37,10 @@ class _OverviewScreenState extends DeferredState<OverviewScreen> {
         }
 
         // If no garden beds, show the “getting started” message
-        if (_overviewData!.gardenBedsCount == 0) {
-          return _buildGettingStarted(context, _overviewData!);
+        if (_overviewData.gardenBedsCount == 0) {
+          return _buildGettingStarted(context, _overviewData);
         } else {
-          return _buildOverview(context, _overviewData!);
+          return _buildOverview(context, _overviewData);
         }
       },
     ),
@@ -53,7 +53,8 @@ class _OverviewScreenState extends DeferredState<OverviewScreen> {
       message = '''
 To get started, you need to define one or more End Points.
 
-An End Point is a Valve or Light associated with a physical Raspberry Pi GIO Pin.
+An End Point is a Valve or Light associated with a physical Raspberry Pi GPIO
+Pin.
 
 To configure an End Point, select the 'Configuration' menu → 'End Points'.
 

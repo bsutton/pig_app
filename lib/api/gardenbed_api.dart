@@ -108,8 +108,10 @@ class GardenBedApi {
       if (response.statusCode != 200) {
         throw NetworkException(response);
       }
-    } catch (e) {
-      print('Exception thrown: $e');
+    } on NetworkException {
+      rethrow;
+    } on Exception catch (e) {
+      throw NetworkException.fromException(e, action: 'Starting timer');
     }
   }
 

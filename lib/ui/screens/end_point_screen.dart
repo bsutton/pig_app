@@ -5,6 +5,9 @@ import 'package:future_builder_ex/future_builder_ex.dart';
 import 'package:pig_common/pig_common.dart';
 
 import '../../api/end_point_api.dart';
+import '../../api/gardenbed_api.dart';
+import '../../api/lighting_api.dart';
+import '../../api/lighting_info.dart';
 import '../../util/exceptions.dart';
 import '../widgets/hmb_toast.dart';
 import 'end_point_edit_screen.dart';
@@ -20,6 +23,8 @@ class EndPointConfigurationScreen extends StatefulWidget {
 class _EndPointConfigurationScreenState
     extends State<EndPointConfigurationScreen> {
   final api = EndPointApi();
+  final gardenBedApi = GardenBedApi();
+  final lightingApi = LightingApi();
   late Future<EndPointListData> _listFuture;
 
   /// Local mutable list so we can reorder in‐memory
@@ -64,32 +69,112 @@ class _EndPointConfigurationScreenState
   Future<void> _deleteEndPoint(EndPointData info) async {
     // TODO(bsutton): don't allow the user to delete the endpoint
     // if it is running - do check server side.
-    final confirmed = await showDialog<bool>(
+    final usage = await _loadEndPointUsage(info);
+    final confirmed = await _confirmDelete(info, usage);
+    if (confirmed != true) {
+      return;
+    }
+    if (!await _deleteMappedEntities(usage)) {
+      return;
+    }
+
+    try {
+      await api.deleteEndPoint(info.id!);
+      _removeEndPoint(info);
+    } on NetworkException catch (e) {
+      HMBToast.error('Delete failed: $e');
+    }
+  }
+
+  Future<_EndPointUsage> _loadEndPointUsage(EndPointData endPoint) async {
+    if (endPoint.id == null) {
+      return const _EndPointUsage();
+    }
+    try {
+      final bedList = await gardenBedApi.fetchGardenBeds();
+      final lights = await lightingApi.fetchLightingList();
+      final bedMatches = bedList.beds
+          .where(
+            (bed) =>
+                bed.valveId == endPoint.id || bed.masterValveId == endPoint.id,
+          )
+          .toList();
+      final lightMatches = lights
+          .where((light) => light.lightSwitchId == endPoint.id)
+          .toList();
+      return _EndPointUsage(gardenBeds: bedMatches, lights: lightMatches);
+    } on NetworkException catch (e) {
+      HMBToast.error('Failed to check endpoint usage: $e');
+      return const _EndPointUsage(loadFailed: true);
+    } on Exception catch (e) {
+      HMBToast.error('Failed to check endpoint usage: $e');
+      return const _EndPointUsage(loadFailed: true);
+    }
+  }
+
+  Future<bool?> _confirmDelete(
+    EndPointData endPoint,
+    _EndPointUsage usage,
+  ) async {
+    if (usage.loadFailed) {
+      return false;
+    }
+    if (usage.isEmpty) {
+      return showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Delete EndPoint?'),
+          content: Text('Are you sure you want to delete "${endPoint.name}"?'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        ),
+      );
+    }
+    final summary = usage.summaryLines();
+    return showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Delete EndPoint?'),
-        content: Text('Are you sure you want to delete  "${info.name}"?'),
+        title: const Text('Delete EndPoint and Mapped Items?'),
+        content: Text(
+          'This endpoint is used by:\n\n$summary\n'
+          'Delete these items and the endpoint?',
+        ),
         actions: [
           TextButton(
             child: const Text('Cancel'),
             onPressed: () => Navigator.of(context).pop(false),
           ),
           TextButton(
-            child: const Text('Delete'),
+            child: const Text('Delete All'),
             onPressed: () => Navigator.of(context).pop(true),
           ),
         ],
       ),
     );
-    if (confirmed != true) {
-      return;
-    }
+  }
 
+  Future<bool> _deleteMappedEntities(_EndPointUsage usage) async {
     try {
-      await api.deleteEndPoint(info.id!);
-      await _refresh();
+      for (final bed in usage.gardenBeds) {
+        if (bed.id != null) {
+          await gardenBedApi.deleteBed(bed.id!);
+        }
+      }
+      for (final light in usage.lights) {
+        await lightingApi.deleteLight(light.id);
+      }
+      return true;
     } on NetworkException catch (e) {
-      HMBToast.error('Delete failed: $e');
+      HMBToast.error('Failed to delete mapped items: $e');
+      return false;
     }
   }
 
@@ -112,11 +197,13 @@ class _EndPointConfigurationScreenState
   }
 
   Future<void> _addEndPoint() async {
-    await Navigator.push<bool>(
+    final created = await Navigator.push<bool>(
       context,
       MaterialPageRoute(builder: (_) => const EndPointEditScreen()),
     );
-    await _refresh();
+    if (created ?? false) {
+      await _refresh();
+    }
   }
 
   void _onBureauSelected(WeatherBureauData? bureau) {
@@ -145,6 +232,12 @@ class _EndPointConfigurationScreenState
       } else {
         list[index] = updated;
       }
+    });
+  }
+
+  void _removeEndPoint(EndPointData removed) {
+    setState(() {
+      _endPoints?.removeWhere((ep) => ep.id == removed.id);
     });
   }
 
@@ -180,6 +273,7 @@ class _EndPointConfigurationScreenState
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('End Points')),
     body: FutureBuilderEx<EndPointListData>(
+      key: ValueKey(_listFuture),
       future: _listFuture,
       builder: (context, data) {
         // Initialize local list once
@@ -239,6 +333,7 @@ class _EndPointConfigurationScreenState
     return ReorderableListView.builder(
       key: const PageStorageKey('endPointList'),
       itemCount: list.length,
+      buildDefaultDragHandles: false,
       onReorder: (oldIndex, newIndex) async {
         // Adjust for removal
         if (newIndex > oldIndex) {
@@ -257,7 +352,7 @@ class _EndPointConfigurationScreenState
           child: ListTile(
             title: Text(ep.name),
             subtitle: Text('${ep.endPointType}, ${ep.gpioPinAssignment}'),
-            leading: Row(
+            trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
@@ -268,16 +363,48 @@ class _EndPointConfigurationScreenState
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () => _deleteEndPoint(ep),
                 ),
-                const Icon(Icons.drag_handle),
+                Switch(
+                  value: ep.isOn,
+                  onChanged: (val) => _toggleEndPoint(ep, val),
+                ),
+                ReorderableDragStartListener(
+                  index: index,
+                  child: const Icon(Icons.drag_handle),
+                ),
               ],
-            ),
-            trailing: Switch(
-              value: ep.isOn,
-              onChanged: (val) => _toggleEndPoint(ep, val),
             ),
           ),
         );
       },
     );
   }
+}
+
+class _EndPointUsage {
+  const _EndPointUsage({
+    this.gardenBeds = const <GardenBedData>[],
+    this.lights = const <LightingInfo>[],
+    this.loadFailed = false,
+  });
+
+  final List<GardenBedData> gardenBeds;
+  final List<LightingInfo> lights;
+  final bool loadFailed;
+
+  bool get isEmpty => gardenBeds.isEmpty && lights.isEmpty;
+
+  String summaryLines() {
+    final buffer = StringBuffer();
+    if (gardenBeds.isNotEmpty) {
+      buffer.writeln('Garden beds: ${gardenBeds.map(_labelForBed).join(', ')}');
+    }
+    if (lights.isNotEmpty) {
+      buffer.writeln('Lights: ${lights.map((light) => light.name).join(', ')}');
+    }
+    return buffer.toString().trim();
+  }
+
+  String _labelForBed(GardenBedData bed) => bed.name?.trim().isNotEmpty ?? false
+      ? bed.name!.trim()
+      : 'Garden bed ${bed.id ?? '-'}';
 }
