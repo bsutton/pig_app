@@ -14,9 +14,11 @@ import 'api/notification_manager.dart';
 import 'ui/error.dart';
 import 'ui/nav/route.dart';
 import 'ui/widgets/blocking_ui.dart';
+import 'util/auth_store.dart';
 import 'util/hmb_theme.dart';
 import 'util/log.dart';
 import 'util/platform_ex.dart';
+import 'util/server_settings.dart';
 
 var firstRun = false;
 
@@ -27,6 +29,8 @@ Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(isOptional: true);
+  await ServerSettings.init();
+  await AuthStore.init();
 
   /// Requests notification updates for the webserver.
   NotificationManager().init();

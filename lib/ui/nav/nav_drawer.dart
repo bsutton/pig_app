@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../util/auth_store.dart';
 import 'drawer_item.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -25,7 +26,7 @@ class MyDrawer extends StatelessWidget {
           title: 'GardenBed Configuration',
           route: '/config/gardenbeds',
         ),
-        DrawerItem(title: 'User Admin', route: '/config/users'),
+        DrawerItem(title: 'Admin', route: '/config/users'),
       ],
     ),
     // If you have additional menu entries from your Java code, add them here.
@@ -34,11 +35,29 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Drawer(
     child: SafeArea(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: drawerItems
-            .map((item) => _buildDrawerItem(item, context))
-            .toList(),
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: drawerItems
+                  .map((item) => _buildDrawerItem(item, context))
+                  .toList(),
+            ),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Logout'),
+            onTap: () async {
+              Navigator.pop(context);
+              await AuthStore.clear();
+              if (context.mounted) {
+                context.go('/public/login');
+              }
+            },
+          ),
+        ],
       ),
     ),
   );

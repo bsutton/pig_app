@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:pig_common/pig_common.dart';
 
 import '../util/exceptions.dart';
+import 'auth_headers.dart';
 import 'settings.dart';
 
 class HistoryApi {
@@ -13,7 +14,7 @@ class HistoryApi {
     final url = Uri.parse('$serverUrl/history/list');
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({}),
     );
 

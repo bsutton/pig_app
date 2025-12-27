@@ -1,7 +1,9 @@
 import 'package:go_router/go_router.dart';
 
 import '../../api/end_point_api.dart';
+import '../../util/auth_store.dart';
 import '../error.dart';
+import '../screens/admin_screen.dart';
 import '../screens/end_point_screen.dart';
 import '../screens/first_run_screen.dart';
 import '../screens/forgotten_password_screen.dart';
@@ -18,7 +20,6 @@ import '../screens/valve_pin_mapping_screen.dart';
 import 'home_with_drawer.dart';
 import 'onboarding_state.dart';
 
-var userIsLoggedIn = true; // Global or stored in a Provider/Bloc, etc.
 var systemConfigured = true;
 
 Future<bool> _hasConfiguredEndPoints() async {
@@ -40,7 +41,7 @@ GoRouter get router => GoRouter(
       redirect: (context, state) {
         if (!systemConfigured) {
           return '/public/first_run';
-        } else if (!userIsLoggedIn) {
+        } else if (!AuthStore.isLoggedIn) {
           return '/overview';
         } else {
           return '/overview';
@@ -59,23 +60,31 @@ GoRouter get router => GoRouter(
     // these do NOT require auth
     GoRoute(
       path: '/public/login',
-      builder: (context, state) =>
-          const HomeWithDrawer(initialScreen: LoginScreen()),
+      builder: (context, state) => const HomeWithDrawer(
+        initialScreen: LoginScreen(),
+        showDrawer: false,
+      ),
     ),
     GoRoute(
       path: '/public/forgot_password',
-      builder: (context, state) =>
-          const HomeWithDrawer(initialScreen: ForgottenPasswordScreen()),
+      builder: (context, state) => const HomeWithDrawer(
+        initialScreen: ForgottenPasswordScreen(),
+        showDrawer: false,
+      ),
     ),
     GoRoute(
       path: '/public/reset_password',
-      builder: (context, state) =>
-          const HomeWithDrawer(initialScreen: ResetPasswordScreen()),
+      builder: (context, state) => const HomeWithDrawer(
+        initialScreen: ResetPasswordScreen(),
+        showDrawer: false,
+      ),
     ),
     GoRoute(
       path: '/public/first_run',
-      builder: (context, state) =>
-          const HomeWithDrawer(initialScreen: FirstRunScreen()),
+      builder: (context, state) => const HomeWithDrawer(
+        initialScreen: FirstRunScreen(),
+        showDrawer: false,
+      ),
     ),
     GoRoute(
       path: '/public/onboarding',
@@ -117,13 +126,17 @@ GoRouter get router => GoRouter(
           const HomeWithDrawer(initialScreen: EndPointConfigurationScreen()),
     ),
     GoRoute(
+      path: '/config/users',
+      builder: (_, _) => const HomeWithDrawer(initialScreen: AdminScreen()),
+    ),
+    GoRoute(
       path: '/config/valve_pin_mapping',
       builder: (_, _) =>
           const HomeWithDrawer(initialScreen: ValvePinMappingScreen()),
     ),
   ],
   // 5) A routing guard or refresh logic can go here if you want to dynamically
-  // check [userIsLoggedIn] on each route
+  // check auth state on each route
   redirect: (context, state) async {
     // If system not configured => route them to /public/first_run
     if (!systemConfigured && state.uri.toString() != '/public/first_run') {
@@ -131,10 +144,10 @@ GoRouter get router => GoRouter(
     }
     // If user not logged in => route them to /public/login
     final isPublicRoute = state.uri.toString().startsWith('/public');
-    if (!userIsLoggedIn && !isPublicRoute) {
+    if (!AuthStore.isLoggedIn && !isPublicRoute) {
       return '/public/login';
     }
-    if (!onboardingDismissed) {
+    if (!onboardingDismissed && AuthStore.isLoggedIn) {
       final hasEndPoints = await _hasConfiguredEndPoints();
       final location = state.uri.toString();
       if (!hasEndPoints &&

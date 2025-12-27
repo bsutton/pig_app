@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../util/exceptions.dart';
+import 'auth_headers.dart';
 import 'lighting_info.dart';
 import 'settings.dart';
 
@@ -11,7 +12,7 @@ class LightingApi {
     final url = Uri.parse('$serverUrl/lighting/list');
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({}),
     ); // No request body needed in our example
 
@@ -34,7 +35,7 @@ class LightingApi {
     final url = Uri.parse('$serverUrl/lighting/toggle');
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({
         'lightId': light.id,
         'turnOn': turnOn,
@@ -51,7 +52,7 @@ class LightingApi {
     final url = Uri.parse('$serverUrl/lighting/delete');
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({'lightId': lightId}),
     );
     if (response.statusCode != 200) {

@@ -1,6 +1,14 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-// ignore: do_not_use_environment
-String serverUrl = dotenv.env['SERVER_URL'] ?? 'https://squarephone.biz';
+import '../util/server_settings.dart';
 
-String webSocketUrl = dotenv.env['WS_SERVER_URL'] ?? 'wss://squarephone.biz';
+// ignore: do_not_use_environment
+String get serverUrl => ServerSettings.serverUrlOverride ??
+    (ServerSettings.webFallbackServerUrl() ??
+        (dotenv.env['SERVER_URL'] ?? 'https://squarephone.biz'));
+
+String get webSocketUrl =>
+    ServerSettings.webSocketUrlOverride ??
+    (ServerSettings.toWebSocketUrl(serverUrl) ??
+        (ServerSettings.webFallbackWebSocketUrl() ??
+            (dotenv.env['WS_SERVER_URL'] ?? 'wss://squarephone.biz')));

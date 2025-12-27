@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:pig_common/pig_common.dart';
 
 import '../util/exceptions.dart';
+import 'auth_headers.dart';
 import 'settings.dart';
 
 class GardenBedApi {
@@ -14,7 +15,7 @@ class GardenBedApi {
     final response = await http.post(
       uri,
       body: jsonEncode({}),
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -31,7 +32,7 @@ class GardenBedApi {
     final url = Uri.parse('$serverUrl/garden_bed/edit_data');
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({'gardenBedId': bedId}),
     );
 
@@ -52,7 +53,7 @@ class GardenBedApi {
     final uri = Uri.parse('$serverUrl/garden_bed/toggle');
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({'bedId': bed.id, 'turnOn': turnOn}),
     );
     if (response.statusCode != 200) {
@@ -64,7 +65,7 @@ class GardenBedApi {
     final uri = Uri.parse('$serverUrl/garden_bed/delete');
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({'bedId': bedId}),
     );
 
@@ -77,7 +78,7 @@ class GardenBedApi {
     final uri = Uri.parse('$serverUrl/garden_bed/save');
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode(bed.toJson()),
     );
 
@@ -97,7 +98,7 @@ class GardenBedApi {
       print('trying');
       response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: jsonHeaders(),
         body: jsonEncode({
           'bedId': bedId,
           'durationSeconds': duration.inSeconds,
@@ -119,7 +120,7 @@ class GardenBedApi {
     final url = Uri.parse('$serverUrl/garden_bed/stop_timer');
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({'bedId': bedId}),
     );
     if (response.statusCode != 200) {

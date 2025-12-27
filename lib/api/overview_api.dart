@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:pig_common/pig_common.dart';
 
 import '../util/exceptions.dart';
+import 'auth_headers.dart';
 import 'settings.dart';
 
 class OverviewApi {
@@ -16,7 +17,7 @@ class OverviewApi {
     final uri = Uri.parse('$serverUrl/overview');
     final resp = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({}),
     );
     if (resp.statusCode != 200) {

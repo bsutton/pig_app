@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:pig_common/pig_common.dart';
 
 import '../util/exceptions.dart';
+import 'auth_headers.dart';
 import 'settings.dart';
 
 class EndPointApi {
@@ -14,7 +15,7 @@ class EndPointApi {
     final uri = Uri.parse('$serverUrl/end_point/list');
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({}), // no body needed
     );
 
@@ -32,7 +33,7 @@ class EndPointApi {
     final uri = Uri.parse('$serverUrl/end_point/edit_data');
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({'endPointId': endPointId}),
     );
     if (response.statusCode == 200) {
@@ -67,7 +68,7 @@ class EndPointApi {
     ).toJson();
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode(body),
     );
     if (response.statusCode != 200) {
@@ -80,7 +81,7 @@ class EndPointApi {
     final uri = Uri.parse('$serverUrl/end_point/save');
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode(endPoint.toJson()),
     );
     if (response.statusCode != 200) {
@@ -97,7 +98,7 @@ class EndPointApi {
     final uri = Uri.parse('$serverUrl/end_point/toggle');
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({'endPointId': endPointId, 'turnOn': turnOn}),
     );
     if (response.statusCode != 200) {
@@ -115,7 +116,7 @@ class EndPointApi {
     final uri = Uri.parse('$serverUrl/end_point/pulse_pin');
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({
         'pinNo': pinNo,
         'durationMs': durationMs,
@@ -133,7 +134,7 @@ class EndPointApi {
     final uri = Uri.parse('$serverUrl/end_point/delete');
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: jsonHeaders(),
       body: jsonEncode({'endPointId': endPointId}),
     );
     if (response.statusCode != 200) {
