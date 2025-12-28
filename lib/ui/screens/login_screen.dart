@@ -45,8 +45,10 @@ class _LoginFormState extends State<_LoginForm> {
         return;
       }
       context.go('/overview');
-    } on NetworkException catch (e) {
-      HMBToast.error('Login failed: $e');
+    } on NetworkException catch (_) {
+      HMBToast.error('Login failed. Check server URL.');
+    } on IrrigationAppException catch (e) {
+      HMBToast.error(e.message);
     } on Exception catch (e) {
       HMBToast.error('Login failed: $e');
     } finally {
@@ -60,7 +62,8 @@ class _LoginFormState extends State<_LoginForm> {
 
   Future<void> _promptServerUrl() async {
     final controller = TextEditingController(
-      text: ServerSettings.serverUrlOverride ??
+      text:
+          ServerSettings.serverUrlOverride ??
           ServerSettings.webFallbackServerUrl() ??
           '',
     );
@@ -103,43 +106,60 @@ class _LoginFormState extends State<_LoginForm> {
       constraints: const BoxConstraints(maxWidth: 420),
       child: Form(
         key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Login',
-                style: Theme.of(context).textTheme.titleLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Enter password' : null,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _isBusy ? null : _login,
-                child: _isBusy
-                    ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Login'),
-              ),
-              const SizedBox(height: 12),
-              TextButton.icon(
-                onPressed: _promptServerUrl,
-                icon: const Icon(Icons.link),
-                label: const Text('Set server URL'),
-              ),
-            ],
+        child: AbsorbPointer(
+          absorbing: _isBusy,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Login',
+                  style: Theme.of(context).textTheme.titleLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Enter password' : null,
+                  onFieldSubmitted: (_) async {
+                    if (_isBusy) {
+                      return;
+                    }
+                    await _login();
+                  },
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _isBusy ? null : _login,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(_isBusy ? 'Logging in...' : 'Login'),
+                      if (_isBusy) ...[
+                        const SizedBox(width: 12),
+                        const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextButton.icon(
+                  onPressed: _promptServerUrl,
+                  icon: const Icon(Icons.link),
+                  label: const Text('Set server URL'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
