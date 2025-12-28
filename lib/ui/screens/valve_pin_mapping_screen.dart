@@ -31,6 +31,9 @@ class _ValvePinMappingScreenState extends State<ValvePinMappingScreen> {
   final _savingPins = ValueNotifier<Set<int>>(<int>{});
   GPIOPinAssignment? _pendingSelectPin;
   EndPointListData? _lastLoadedData;
+  final _hiddenPins = <int>{};
+  var _hideAssignedPins = true;
+  var _hideHiddenPins = true;
 
   List<EndPointData>? _endPoints;
   var _isDisposed = false;
@@ -306,14 +309,23 @@ class _ValvePinMappingScreenState extends State<ValvePinMappingScreen> {
       builder: (context, data) {
         _ensureEndPoints(data!);
         final endPoints = _endPoints!;
+        final visiblePins = GPIOPinAssignment.values
+            .where(_isPinVisible)
+            .toList();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _MappingIntroCard(
+            _MappingControlsBar(
               pulseMs: _pulseMs,
               minPulseMs: _minPulseMs,
               maxPulseMs: _maxPulseMs,
               onPulseChanged: _onPulseChanged,
+              hideAssignedPins: _hideAssignedPins,
+              hideHiddenPins: _hideHiddenPins,
+              hiddenCount: _hiddenPins.length,
+              onHideAssignedChanged: _onHideAssignedChanged,
+              onHideHiddenChanged: _onHideHiddenChanged,
+              onResetHidden: _resetHiddenPins,
             ),
             Expanded(
               child: ValueListenableBuilder<int?>(
@@ -321,16 +333,24 @@ class _ValvePinMappingScreenState extends State<ValvePinMappingScreen> {
                 builder: (context, pulsingPin, _) =>
                     ValueListenableBuilder<Set<int>>(
                       valueListenable: _savingPins,
-                      builder: (context, savingPins, _) => _PinMappingList(
-                        pins: GPIOPinAssignment.values,
-                        endPoints: endPoints,
-                        selectedEndPointIdsByPin: _selectedEndPointIdsByPin,
-                        pulsingPin: pulsingPin,
-                        savingPins: savingPins,
-                        onSelectionChanged: _onSelectionChanged,
-                        onSave: _savePinMapping,
-                        onPulse: _pulsePin,
-                        onAddEndPoint: _addEndPoint,
+                      builder: (context, savingPins, _) => CustomScrollView(
+                        slivers: [
+                          const SliverToBoxAdapter(
+                            child: _MappingIntroCard(),
+                          ),
+                          _PinMappingSliver(
+                            pins: visiblePins,
+                            endPoints: endPoints,
+                            selectedEndPointIdsByPin: _selectedEndPointIdsByPin,
+                            pulsingPin: pulsingPin,
+                            savingPins: savingPins,
+                            onSelectionChanged: _onSelectionChanged,
+                            onSave: _savePinMapping,
+                            onPulse: _pulsePin,
+                            onAddEndPoint: _addEndPoint,
+                            onHidePin: _hidePin,
+                          ),
+                        ],
                       ),
                     ),
               ),
@@ -362,6 +382,38 @@ class _ValvePinMappingScreenState extends State<ValvePinMappingScreen> {
     });
   }
 
+  void _onHideAssignedChanged(bool value) {
+    setState(() {
+      _hideAssignedPins = value;
+    });
+  }
+
+  void _onHideHiddenChanged(bool value) {
+    setState(() {
+      _hideHiddenPins = value;
+    });
+  }
+
+  void _resetHiddenPins() {
+    setState(_hiddenPins.clear);
+  }
+
+  void _hidePin(GPIOPinAssignment pin) {
+    setState(() {
+      _hiddenPins.add(pin.gpioPin);
+    });
+  }
+
+  bool _isPinVisible(GPIOPinAssignment pin) {
+    if (_hideHiddenPins && _hiddenPins.contains(pin.gpioPin)) {
+      return false;
+    }
+    if (_hideAssignedPins && _endPointForPin(pin) != null) {
+      return false;
+    }
+    return true;
+  }
+
   Future<void> _addEndPoint(GPIOPinAssignment pin) async {
     final created = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
@@ -382,54 +434,131 @@ class _ValvePinMappingScreenState extends State<ValvePinMappingScreen> {
 }
 
 class _MappingIntroCard extends StatelessWidget {
-  const _MappingIntroCard({
+  const _MappingIntroCard();
+
+  @override
+  Widget build(BuildContext context) => Card(
+        margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Live manual test panel',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Pulse each GPIO pin, watch which valve or light activates, '
+                'and assign the matching endpoint. Pulse will save the '
+                'selection before testing.',
+              ),
+            ],
+          ),
+        ),
+      );
+}
+
+class _MappingControlsBar extends StatelessWidget {
+  const _MappingControlsBar({
     required this.pulseMs,
     required this.minPulseMs,
     required this.maxPulseMs,
     required this.onPulseChanged,
+    required this.hideAssignedPins,
+    required this.hideHiddenPins,
+    required this.hiddenCount,
+    required this.onHideAssignedChanged,
+    required this.onHideHiddenChanged,
+    required this.onResetHidden,
   });
 
   final double pulseMs;
   final double minPulseMs;
   final double maxPulseMs;
   final ValueChanged<double> onPulseChanged;
+  final bool hideAssignedPins;
+  final bool hideHiddenPins;
+  final int hiddenCount;
+  final ValueChanged<bool> onHideAssignedChanged;
+  final ValueChanged<bool> onHideHiddenChanged;
+  final VoidCallback onResetHidden;
 
   @override
-  Widget build(BuildContext context) => Card(
-    margin: const EdgeInsets.all(16),
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Live manual test panel',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Pulse each GPIO pin, watch which valve or light activates, and '
-            'assign the matching endpoint. Pulse will save the selection '
-            'before testing.',
-          ),
-          const SizedBox(height: 8),
-          Text('Pulse length: ${(pulseMs / 1000).toStringAsFixed(1)} seconds.'),
-          Slider(
-            value: pulseMs,
-            min: minPulseMs,
-            max: maxPulseMs,
-            divisions: 18,
-            label: '${pulseMs.round()} ms',
-            onChanged: onPulseChanged,
-          ),
-        ],
+  Widget build(BuildContext context) {
+    final subtitleStyle = Theme.of(context).textTheme.bodySmall;
+    return Card(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Pulse length: ${(pulseMs / 1000).toStringAsFixed(1)} seconds.',
+            ),
+            Slider(
+              value: pulseMs,
+              min: minPulseMs,
+              max: maxPulseMs,
+              divisions: 18,
+              label: '${pulseMs.round()} ms',
+              onChanged: onPulseChanged,
+            ),
+            Wrap(
+              spacing: 12,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                _FilterToggle(
+                  label: 'Hide assigned pins',
+                  value: hideAssignedPins,
+                  onChanged: onHideAssignedChanged,
+                ),
+                _FilterToggle(
+                  label: 'Hide hidden pins',
+                  value: hideHiddenPins,
+                  onChanged: onHideHiddenChanged,
+                ),
+                if (hiddenCount > 0)
+                  Text('Hidden: $hiddenCount', style: subtitleStyle),
+                TextButton(
+                  onPressed: hiddenCount == 0 ? null : onResetHidden,
+                  child: const Text('Reset hidden'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
+    );
+  }
+}
+
+class _FilterToggle extends StatelessWidget {
+  const _FilterToggle({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Switch(value: value, onChanged: onChanged),
+      Text(label),
+    ],
   );
 }
 
-class _PinMappingList extends StatelessWidget {
-  const _PinMappingList({
+class _PinMappingSliver extends StatelessWidget {
+  const _PinMappingSliver({
     required this.pins,
     required this.endPoints,
     required this.selectedEndPointIdsByPin,
@@ -439,6 +568,7 @@ class _PinMappingList extends StatelessWidget {
     required this.onSave,
     required this.onPulse,
     required this.onAddEndPoint,
+    required this.onHidePin,
   });
 
   final List<GPIOPinAssignment> pins;
@@ -459,57 +589,77 @@ class _PinMappingList extends StatelessWidget {
 
   final void Function(GPIOPinAssignment) onAddEndPoint;
 
+  final void Function(GPIOPinAssignment) onHidePin;
+
   @override
   Widget build(BuildContext context) {
     if (pins.isEmpty) {
-      return const Center(child: Text('No GPIO pins configured yet.'));
+      return const SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(child: Text('No pins match the current filters.')),
+      );
     }
     final selectedPinsByEndPoint = _selectedPinsByEndPoint(
       selectedEndPointIdsByPin,
     );
-    return LayoutBuilder(
+    return SliverLayoutBuilder(
       builder: (context, constraints) {
-        final isWide = constraints.maxWidth >= 900;
+        final isWide = constraints.crossAxisExtent >= 900;
         const padding = EdgeInsets.fromLTRB(16, 0, 16, 16);
         if (isWide) {
-          return GridView.builder(
+          return SliverPadding(
             padding: padding,
-            itemCount: pins.length,
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 520,
-              mainAxisExtent: 240,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-            ),
-            itemBuilder: (context, index) => _PinMappingCard(
-              pin: pins[index],
-              endPoints: endPoints,
-              selectedEndPointIdsByPin: selectedEndPointIdsByPin,
-              selectedPinsByEndPoint: selectedPinsByEndPoint,
-              pulsingPin: pulsingPin,
-              savingPins: savingPins,
-              onSelectionChanged: onSelectionChanged,
-              onSave: onSave,
-              onPulse: onPulse,
-              onAddEndPoint: onAddEndPoint,
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 520,
+                mainAxisExtent: 240,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _PinMappingCard(
+                  pin: pins[index],
+                  endPoints: endPoints,
+                  selectedEndPointIdsByPin: selectedEndPointIdsByPin,
+                  selectedPinsByEndPoint: selectedPinsByEndPoint,
+                  pulsingPin: pulsingPin,
+                  savingPins: savingPins,
+                  onSelectionChanged: onSelectionChanged,
+                  onSave: onSave,
+                  onPulse: onPulse,
+                  onAddEndPoint: onAddEndPoint,
+                  onHidePin: onHidePin,
+                ),
+                childCount: pins.length,
+              ),
             ),
           );
         }
-        return ListView.separated(
+        return SliverPadding(
           padding: padding,
-          itemCount: pins.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 16),
-          itemBuilder: (context, index) => _PinMappingCard(
-            pin: pins[index],
-            endPoints: endPoints,
-            selectedEndPointIdsByPin: selectedEndPointIdsByPin,
-            selectedPinsByEndPoint: selectedPinsByEndPoint,
-            pulsingPin: pulsingPin,
-            savingPins: savingPins,
-            onSelectionChanged: onSelectionChanged,
-            onSave: onSave,
-            onPulse: onPulse,
-            onAddEndPoint: onAddEndPoint,
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final pinIndex = index ~/ 2;
+                if (index.isOdd) {
+                  return const SizedBox(height: 16);
+                }
+                return _PinMappingCard(
+                  pin: pins[pinIndex],
+                  endPoints: endPoints,
+                  selectedEndPointIdsByPin: selectedEndPointIdsByPin,
+                  selectedPinsByEndPoint: selectedPinsByEndPoint,
+                  pulsingPin: pulsingPin,
+                  savingPins: savingPins,
+                  onSelectionChanged: onSelectionChanged,
+                  onSave: onSave,
+                  onPulse: onPulse,
+                  onAddEndPoint: onAddEndPoint,
+                  onHidePin: onHidePin,
+                );
+              },
+              childCount: pins.length * 2 - 1,
+            ),
           ),
         );
       },
@@ -543,6 +693,7 @@ class _PinMappingCard extends StatelessWidget {
     required this.onSave,
     required this.onPulse,
     required this.onAddEndPoint,
+    required this.onHidePin,
   });
 
   final GPIOPinAssignment pin;
@@ -564,6 +715,8 @@ class _PinMappingCard extends StatelessWidget {
   final void Function(GPIOPinAssignment) onPulse;
 
   final void Function(GPIOPinAssignment) onAddEndPoint;
+
+  final void Function(GPIOPinAssignment) onHidePin;
 
   @override
   Widget build(BuildContext context) {
@@ -622,6 +775,14 @@ class _PinMappingCard extends StatelessWidget {
                 onPressed: isBusy ? null : () => onAddEndPoint(pin),
                 icon: const Icon(Icons.add),
                 label: const Text('Add endpoint for this pin'),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: isBusy ? null : () => onHidePin(pin),
+                icon: const Icon(Icons.visibility_off),
+                label: const Text('Hide this pin'),
               ),
             ),
             const SizedBox(height: 16),
