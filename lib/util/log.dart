@@ -155,6 +155,9 @@ class MyLogPrinter extends LogPrinter {
     final formattedDate = formatter.format(now) + now.millisecond.toString();
 
     final frames = StackTraceImpl();
+    if (frames.frames.isEmpty) {
+      return ['${event.level.name}: ${event.message}'];
+    }
     var i = 0;
     var depth = 0;
     for (final frame in frames.frames) {
@@ -166,7 +169,11 @@ class MyLogPrinter extends LogPrinter {
       }
     }
 
-    final frame = StackTraceImpl(skipFrames: depth).frames[0];
+    final resolvedFrames = StackTraceImpl(skipFrames: depth).frames;
+    if (resolvedFrames.isEmpty) {
+      return ['${event.level.name}: ${event.message}'];
+    }
+    final frame = resolvedFrames[0];
 
     var details = frame.details;
     if (details != null && details.contains('closure')) {

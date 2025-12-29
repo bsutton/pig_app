@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthStore {
@@ -6,6 +8,7 @@ class AuthStore {
 
   static String? _token;
   static DateTime? _expiry;
+  static FutureOr<void> Function(String message)? onInvalidToken;
 
   static Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -42,5 +45,13 @@ class AuthStore {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_expiryKey);
+  }
+
+  static Future<void> handleInvalidToken(String message) async {
+    await clear();
+    final handler = onInvalidToken;
+    if (handler != null) {
+      await handler(message);
+    }
   }
 }

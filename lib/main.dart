@@ -27,10 +27,19 @@ Future<void> main(List<String> args) async {
 
   // Ensure WidgetsFlutterBinding is initialized before any async code.
   WidgetsFlutterBinding.ensureInitialized();
+  _registerGlobalErrorHandlers();
+  // registerWebPlugins();
 
+  try {
   await dotenv.load(isOptional: true);
+  } catch (e, stackTrace) {
+    Log.w('Skipping .env load: $e', error: e, stackTrace: stackTrace);
+  }
   await ServerSettings.init();
   await AuthStore.init();
+  AuthStore.onInvalidToken = (message) {
+    router.go('/public/login', extra: message);
+  };
 
   /// Requests notification updates for the webserver.
   NotificationManager().init();
@@ -77,6 +86,20 @@ Future<void> main(List<String> args) async {
     ),
     // )
   );
+}
+
+void _registerGlobalErrorHandlers() {
+  FlutterError.onError = (details) {
+    Log.e(
+      'FlutterError: ${details.exceptionAsString()}',
+      error: details.exception,
+      stackTrace: details.stack,
+    );
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    Log.e('Uncaught error: $error', error: error, stackTrace: stack);
+    return true;
+  };
 }
 
 ThemeData get theme => ThemeData(

@@ -81,6 +81,8 @@ To configure a Garden Bed, select the 'Configuration' menu → 'Garden Beds'.
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildWeatherSource(data),
+        const SizedBox(height: 8),
         // Now that OverviewData.temp was populated via BomApi,
         // this will show the live current temperature:
         Text('Current Temp: ${data.temp.toStringAsFixed(1)} °C'),
@@ -91,12 +93,33 @@ To configure a Garden Bed, select the 'Configuration' menu → 'Garden Beds'.
         const Text('Rain Data'),
         Text('Last 24 Hours: ${data.rain24.toStringAsFixed(1)} mm'),
         Text('Last 7 days: ${data.rain7days.toStringAsFixed(1)} mm'),
+        const SizedBox(height: 12),
+        const Text('3-Day Forecast'),
+        if (data.rainForecastNext3Days.isEmpty)
+          const Text('No forecast available.')
+        else
+          for (final day in data.rainForecastNext3Days)
+            _buildForecastRow(day),
         const SizedBox(height: 16),
         const Text('Watering Events:'),
         for (final event in data.lastWateringEvents) _buildHistoryRow(event),
       ],
     ),
   );
+
+  Widget _buildWeatherSource(OverviewData data) {
+    final parts = <String>[];
+    if (data.weatherBureauName.isNotEmpty) {
+      parts.add(data.weatherBureauName);
+    }
+    if (data.weatherStationName.isNotEmpty) {
+      parts.add(data.weatherStationName);
+    }
+    if (parts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Text('Weather Source: ${parts.join(' - ')}');
+  }
 
   Widget _buildHistoryRow(WateringEvent event) => Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -105,6 +128,19 @@ To configure a Garden Bed, select the 'Configuration' menu → 'Garden Beds'.
       Text('${event.durationMinutes} min'),
       Text(event.gardenBedName),
     ],
+  );
+
+  Widget _buildForecastRow(WeatherDayForecastData day) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(child: Text(day.date)),
+        Text('${day.minTempC.toStringAsFixed(0)}–${day.maxTempC.toStringAsFixed(0)} °C'),
+        Text('${day.rainMinMm.toStringAsFixed(0)}–${day.rainMaxMm.toStringAsFixed(0)} mm'),
+        Text('${day.rainChancePercent.toStringAsFixed(0)}%'),
+      ],
+    ),
   );
 
   /// Example format for a DateTime

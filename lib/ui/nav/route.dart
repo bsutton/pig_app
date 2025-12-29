@@ -60,8 +60,8 @@ GoRouter get router => GoRouter(
     // these do NOT require auth
     GoRoute(
       path: '/public/login',
-      builder: (context, state) => const HomeWithDrawer(
-        initialScreen: LoginScreen(),
+      builder: (context, state) => HomeWithDrawer(
+        initialScreen: LoginScreen(message: state.extra as String?),
         showDrawer: false,
       ),
     ),

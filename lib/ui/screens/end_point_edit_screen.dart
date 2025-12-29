@@ -53,7 +53,9 @@ class _EndPointEditScreenState extends DeferredState<EndPointEditScreen> {
       endPointType = endPointData!.endPointType;
     }
     activationTypes = endPointEditData.activationTypes;
-    availablePins = endPointEditData.availablePins;
+    availablePins = endPointEditData.availablePins
+        .where((pin) => pin != GPIOPinAssignment.none)
+        .toList();
     if (isNew && pinAssignment == null && widget.initialPinAssignment != null) {
       pinAssignment = widget.initialPinAssignment;
       if (!availablePins.contains(pinAssignment)) {

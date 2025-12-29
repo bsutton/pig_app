@@ -7,14 +7,18 @@ import '../../util/server_settings.dart';
 import '../widgets/hmb_toast.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.message});
+
+  final String? message;
 
   @override
-  Widget build(BuildContext context) => const _LoginForm();
+  Widget build(BuildContext context) => _LoginForm(message: message);
 }
 
 class _LoginForm extends StatefulWidget {
-  const _LoginForm();
+  const _LoginForm({this.message});
+
+  final String? message;
 
   @override
   State<_LoginForm> createState() => _LoginFormState();
@@ -23,12 +27,28 @@ class _LoginForm extends StatefulWidget {
 class _LoginFormState extends State<_LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
+  final _passwordFocus = FocusNode();
   final _api = AuthApi();
   var _isBusy = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _passwordFocus.requestFocus();
+    });
+    final notice = widget.message;
+    if (notice != null && notice.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        HMBToast.error(notice);
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _passwordController.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
@@ -120,10 +140,11 @@ class _LoginFormState extends State<_LoginForm> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
+              TextFormField(
+                controller: _passwordController,
+                focusNode: _passwordFocus,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
                   textInputAction: TextInputAction.done,
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Enter password' : null,
